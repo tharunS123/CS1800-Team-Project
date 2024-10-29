@@ -1,1 +1,0 @@
-## CS 18000 Team Project - Social Media Platform
