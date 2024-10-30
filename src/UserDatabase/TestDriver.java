@@ -2,7 +2,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.io.Console;
 
-public class Driver {
+public class TestDriver {
   public static Map<String, User> users;
     public static void main(String[] args) {
         // Initialize the UserDatabase with a file name
