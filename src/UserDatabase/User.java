@@ -23,8 +23,12 @@ class User implements Serializable {
 
     public String getUuid() {
         return uuid;
-
     }
+
+    public String getPassword(){
+      return this.password;
+    }
+
     public boolean getLoggedIn() {
         return loggedIn;
     }

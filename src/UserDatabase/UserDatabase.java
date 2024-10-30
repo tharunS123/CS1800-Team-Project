@@ -1,6 +1,9 @@
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import javax.swing.text.PasswordView;
+
 import java.util.UUID;
 
 public class UserDatabase {
@@ -72,6 +75,19 @@ public class UserDatabase {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean deleteUser(User username, String password) {
+      lock.writeLock().lock();
+      if(!(password.equals(username.getPassword())))return false;
+      try {
+          Map<String, User> users = loadUsers();
+          users.remove(username.getUsername());
+          saveUsers(users);
+          return true;
+      } finally {
+          lock.writeLock().unlock();
+      }
     }
 }
 
