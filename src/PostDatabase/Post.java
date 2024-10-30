@@ -85,7 +85,7 @@ public class Post {
 
     @Override
     public String toString() {
-        return "Title: " + title + "\nContent: " +
+        return "ID: " + id + "\nTitle: " + title + "\nContent: " +
                 content + "\nAuthor: " + author + "\nDate: " +
                 date + "\n Upvotes: " + upVote + "\n Downvotes: " + downVote;
     }
