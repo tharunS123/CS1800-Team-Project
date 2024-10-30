@@ -37,8 +37,9 @@ public class PostDatabase {
 
     private void savePostFile(ArrayList<Post> post) {
         // Save post to file
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
-            bw.write(post.toString());
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) {
+            bw.append(post.toString());
+            bw.newLine();
         } catch (IOException e) {
             e.printStackTrace();
         }
