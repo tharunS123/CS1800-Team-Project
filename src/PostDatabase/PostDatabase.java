@@ -1,11 +1,8 @@
 package src.PostDatabase;
 
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -44,16 +41,6 @@ public class PostDatabase {
             bw.write(post.toString());
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    public Post getPost(int id) {
-        lock.readLock().lock();
-        try {
-            // Get post from file
-            return this.post.get(id);
-        } finally {
-            lock.readLock().unlock();
         }
     }
 
