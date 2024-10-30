@@ -1,7 +1,7 @@
 import java.util.Map;
 import java.util.Scanner;
 
-public class Driver {
+public class TestDriver {
     public static void main(String[] args) {
         // Initialize the UserDatabase with a file name
         UserDatabase userDatabase = new UserDatabase("user_database.txt");
