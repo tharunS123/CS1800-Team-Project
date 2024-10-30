@@ -101,7 +101,7 @@ class User implements Serializable {
         return uuid;
 
     }
-    public String getLoggedIn() {
+    public boolean getLoggedIn() {
         return loggedIn;
     }
 
