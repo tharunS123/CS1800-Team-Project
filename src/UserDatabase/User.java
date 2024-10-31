@@ -37,12 +37,12 @@ class User implements Serializable {
         return new ArrayList<>(friends);
     }
 
-    public boolean logIn(String password){
+    public Tuple<Boolean, User> logIn(String password){
       if(password.equals(this.password)){
         loggedIn = true;
-        return true;
+        return new Tuple(true, this);
       }else {
-        return false;
+        return new Tuple(false, null);
       }
     }
 
