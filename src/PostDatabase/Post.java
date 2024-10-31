@@ -12,7 +12,7 @@ public class Post {
     private int downVote;
     private ArrayList<String> comments;
 
-    public Post(String title, String content, String author, String date) {
+    public Post(int id, String title, String content, String author, String date) {
         this.title = title;
         this.content = content;
         this.author = author;
@@ -20,7 +20,7 @@ public class Post {
         this.comments = new ArrayList<>();
         this.upVote = 0;
         this.downVote = 0;
-        this.id = 0;
+        this.id = id;
     }
 
     public int getID() {

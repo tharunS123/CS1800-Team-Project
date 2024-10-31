@@ -43,7 +43,7 @@ public class Main {
 
         String date = new Timestamp(System.currentTimeMillis()).toString();
 
-        Post post = new Post(title, content, author, date);
+        Post post = new Post(0, title, content, author, date);
         postdatabase.addPost(post);
     }
 }
