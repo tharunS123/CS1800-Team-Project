@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         PostDatabase postdatabase = new PostDatabase("postdatabase.txt");
 
         createPostPrompt(postdatabase);
@@ -16,16 +16,16 @@ public class Main {
         loadAndDisplayPosts(postdatabase);
     }
 
-    private static void loadAndDisplayPosts(PostDatabase postdatabase) {
+    private static void loadAndDisplayPosts(PostDatabase postdatabase) throws Exception {
         ArrayList<Post> posts = postdatabase.getPosts();
 
         if (posts.isEmpty()) {
             System.out.println("No posts found.");
         } else {
             System.out.println("Loaded Post from the database: ");
-            for (Post post : posts) {
-                System.out.println(post);
-            }
+
+            // display all the post  in the database
+            postdatabase.readPostDatabase("postdatabase.txt");
         }
     }
 
