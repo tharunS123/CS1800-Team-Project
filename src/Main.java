@@ -3,12 +3,13 @@ package src;
 import src.PostDatabase.Post;
 import src.PostDatabase.PostDatabase;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        PostDatabase postdatabase = new PostDatabase("postdatabase20.txt");
+        PostDatabase postdatabase = new PostDatabase("postdatabase.txt");
 
         createPostPrompt(postdatabase);
 
@@ -40,8 +41,7 @@ public class Main {
         System.out.println("Enter the author of the post: ");
         String author = scanner.nextLine();
 
-        System.out.println("Enter the date of the post: ");
-        String date = scanner.nextLine();
+        String date = new Timestamp(System.currentTimeMillis()).toString();
 
         Post post = new Post(title, content, author, date);
         postdatabase.addPost(post);
