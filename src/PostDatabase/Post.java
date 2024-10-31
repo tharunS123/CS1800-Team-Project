@@ -1,9 +1,10 @@
 package src.PostDatabase;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class Post {
-    private int id;
+    private UUID id;
     private String title;
     private String content;
     private String author;
@@ -12,7 +13,7 @@ public class Post {
     private int downVote;
     private ArrayList<String> comments;
 
-    public Post(int id, String title, String content, String author, String date) {
+    public Post(String title, String content, String author, String date) {
         this.title = title;
         this.content = content;
         this.author = author;
@@ -20,14 +21,21 @@ public class Post {
         this.comments = new ArrayList<>();
         this.upVote = 0;
         this.downVote = 0;
-        this.id = id;
+
+        this.id = UUID.randomUUID();
     }
 
-    public int getID() {
+    private boolean checkIdUsed(int id) {
+        // check if id is used
+        PostDatabase db = new PostDatabase("postdatabase.txt");
+        return db.getPostID(id);
+    }
+
+    public UUID getID() {
         return id;
     }
 
-    public void setID(int id) {
+    public void setID(UUID id) {
         this.id = id;
     }
 

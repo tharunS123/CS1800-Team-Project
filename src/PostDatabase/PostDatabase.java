@@ -28,12 +28,11 @@ public class PostDatabase {
         lock.writeLock().lock();
         try {
             // Add post to file
-            if (this.post.contains(post.getTitle())) {
-                return false;
-            }
             this.post.add(post);
             savePostFile(this.post);
             return true;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         } finally {
             lock.writeLock().unlock();
         }
@@ -49,7 +48,8 @@ public class PostDatabase {
         }
     }
 
-    public void readPostDatabase(String filename) throws Exception {
+    public ArrayList<String> readPostDatabase(String filename) throws Exception {
+        lock.readLock().lock();
         // Read post from file
         ArrayList<String> postArray = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
@@ -59,12 +59,11 @@ public class PostDatabase {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            lock.readLock().unlock();
         }
 
-        // Display all post in the database for test case purpose
-        for (String post : postArray) {
-            System.out.println(post);
-        }
+        return postArray;
     }
 
     public ArrayList<Post> getPosts() {
@@ -72,6 +71,24 @@ public class PostDatabase {
         try {
             // Get all posts from file
             return this.post;
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    public boolean getPostID(int id) {
+        lock.readLock().lock();
+        try {
+            ArrayList<String> postArray = readPostDatabase(file);
+
+            for (String post : postArray) {
+                if (post.contains("ID: " + id)) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         } finally {
             lock.readLock().unlock();
         }
