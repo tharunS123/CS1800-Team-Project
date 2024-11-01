@@ -57,15 +57,15 @@ public class PostDatabaseTest {
         assertEquals(post.getID(), posts.get(0).getID()); // Ensure the added post matches
     }
 
-//    @Test
-//    public void testGetPostID() {
-//        PostDatabase postDatabase = new PostDatabase(testFileName);
-//        Post post = new Post("Test Title", "Test Content", "Author", new Timestamp(System.currentTimeMillis()).toString());
-//        postDatabase.addPost(post); // Add a post
-//
-//        boolean exists = postDatabase.getPostID(post.getID().hashCode()); // Check for post ID
-//        assertTrue(exists); // Ensure the ID exists
-//    }
+    @Test
+    public void testGetPostID() {
+        PostDatabase postDatabase = new PostDatabase(testFileName);
+        Post post = new Post("Test Title", "Test Content", "Author");
+        postDatabase.addPost(post); // Add a post
+
+        boolean exists = postDatabase.getPostID(post.getID().hashCode()); // Check for post ID
+        assertTrue(exists); // Ensure the ID exists
+    }
 
     @Test
     public void testGetPostIDReturnsFalseForNonexistentID() {
