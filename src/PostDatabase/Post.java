@@ -1,5 +1,7 @@
 package src.PostDatabase;
 
+import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -8,20 +10,47 @@ public class Post {
     private String title;
     private String content;
     private String author;
-    private String date;
+    private Timestamp date;
     private int upVote;
     private int downVote;
     private ArrayList<String> comments;
 
-    public Post(String title, String content, String author, String date) {
+    public Post(String title, String content, String author) {
         this.title = title;
         this.content = content;
         this.author = author;
-        this.date = date;
+        this.date = new Timestamp(System.currentTimeMillis());
         this.comments = new ArrayList<>();
         this.upVote = 0;
         this.downVote = 0;
+        this.id = UUID.randomUUID();
+    }
 
+    public Post(String data) throws IOException {
+        try {
+            String[] info = data.split("]\n");
+            this.id = UUID.fromString(info[0]);
+            this.title = info[1];
+            this.content = info[2];
+            this.author = info[3];
+            this.date = Timestamp.valueOf(info[4]);
+            this.upVote = Integer.parseInt(info[5]);
+            this.downVote = Integer.parseInt(info[6]);
+        } catch (Exception e) {
+            throw new IOException("Bad Post Data");
+        }
+    }
+
+    public Post(IOException e) {
+        String str = e.getMessage();
+
+        this.title = "Bad Post Data";
+        this.content = "Bad Post Data";
+        this.author = "Bad Post Data";
+        this.date = new Timestamp(System.currentTimeMillis());
+        this.comments = new ArrayList<>();
+        this.upVote = 0;
+        this.downVote = 0;
         this.id = UUID.randomUUID();
     }
 
@@ -59,8 +88,12 @@ public class Post {
         return author;
     }
 
-    public String getDate() {
-        return date;
+    public long getTime() {
+        return date.getTime();
+    }
+
+    public String getDataAndTime() {
+        return date.toString();
     }
 
     public void setTitle(String title) {
@@ -73,6 +106,10 @@ public class Post {
 
     public void setAuthor(String author) {
         this.author = author;
+    }
+
+    public void setComments(String comments) {
+        this.comments.add(comments);
     }
 
     public int getUpVote() {
@@ -93,8 +130,9 @@ public class Post {
 
     @Override
     public String toString() {
-        return "ID: " + id + "\nTitle: " + title + "\nContent: " +
-                content + "\nAuthor: " + author + "\nDate: " +
-                date + "\n Upvotes: " + upVote + "\n Downvotes: " + downVote;
+        return "ID: " + getID() + "\nTitle: " + getTitle() + "\nContent: " +
+                getContent() + "\nAuthor: " + getAuthor() + "\nDate: " +
+                getDataAndTime() + "\n Upvotes: " + getUpVote() + "\n Downvotes: " + getDownVote() + ", \n"
+                + "Comments: " + getComments();
     }
 }

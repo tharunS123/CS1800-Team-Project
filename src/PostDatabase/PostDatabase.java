@@ -2,8 +2,6 @@ package src.PostDatabase;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -29,7 +27,7 @@ public class PostDatabase {
         try {
             // Add post to file
             this.post.add(post);
-            savePostFile(this.post);
+            savePostFile(post);
             return true;
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -38,7 +36,7 @@ public class PostDatabase {
         }
     }
 
-    private void savePostFile(ArrayList<Post> post) {
+    private void savePostFile(Post post) {
         // Save post to file
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) {
             bw.append(post.toString());
@@ -48,19 +46,28 @@ public class PostDatabase {
         }
     }
 
-    public ArrayList<String> readPostDatabase(String filename) throws Exception {
+    public ArrayList<Post> readPostDatabase(String filename) throws Exception {
         lock.readLock().lock();
         // Read post from file
-        ArrayList<String> postArray = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+
+        ArrayList<Post> postArray = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(filename)))  {
             String line;
             while ((line = br.readLine()) != null) {
-                postArray.add(line);
+                // TODO: Parse the line and create a Post object and store in the postArray
+                String[] postInfo = line.split("]");
+////                String[] postInfo = line.split("]");
+////                Post post = new Post(postInfo[0], postInfo[1], postInfo[2], postInfo[3]);
+////                postArray.add(post);
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
             lock.readLock().unlock();
+        }
+
+        for (Post post : postArray) {
+            System.out.println(post.getAuthor());
         }
 
         return postArray;
@@ -79,12 +86,12 @@ public class PostDatabase {
     public boolean getPostID(int id) {
         lock.readLock().lock();
         try {
-            ArrayList<String> postArray = readPostDatabase(file);
+            ArrayList<Post> postArray = readPostDatabase(file);
 
-            for (String post : postArray) {
-                if (post.contains("ID: " + id)) {
-                    return true;
-                }
+            for (Post post : postArray) {
+//                if (post.contains("ID: " + id)) {
+//                    return true;
+//                }
             }
             return false;
         } catch (Exception e) {
