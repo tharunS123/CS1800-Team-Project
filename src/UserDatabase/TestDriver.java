@@ -1,11 +1,28 @@
+
 import java.util.Map;
 import java.util.Scanner;
 import java.io.Console;
-
+/**
+ * The TestDriver class provides an interface to interact with a user database.
+ * It allows users to create accounts, log in, delete accounts, add friends, and display
+ * user information. This class depends on the UserDatabase and User classes for database
+ * operations and user management.
+ * @author Eashan and Abdullah
+ * @version 31st October
+ */
 public class TestDriver {
-  public static Map<String, User> users;
-  public static User currentUser = null;
+	
+	/** Map of usernames to User objects representing all users in the system. */
+    public static Map<String, User> users;
+	public static User currentUser = null;
+	/**
+	 * Main method. Initializes the user database, loads users, and provides an
+     * interface for user interaction.
+	 * @param args
+	 */
+	
     public static void main(String[] args) {
+    	
         // Initialize the UserDatabase with a file name
         UserDatabase userDatabase = new UserDatabase("user_database.txt");
         users = userDatabase.loadUsers();
@@ -66,7 +83,12 @@ public class TestDriver {
         }
     }
 
-    // Method to load and display users from the database
+    
+    /**
+     * Loads and displays all users in the user database.
+     *
+     * @param userDatabase The UserDatabase instance to load users from.
+     */
     private static void loadAndDisplayUsers(UserDatabase userDatabase) {
         users = userDatabase.loadUsers();
 
@@ -118,7 +140,12 @@ public class TestDriver {
             System.out.println("Username already exists. User was not added.");
         }
     }
-
+    /**
+     * Prompts the user to delete an existing user from the database.
+     *
+     * @param userDatabase The UserDatabase instance to delete the user from.
+     * @param scanner The scanner used to read input from the user.
+     */
     private static void deleteUserPrompt(UserDatabase userDatabase, Scanner scanner) {
         Console console = System.console();
         System.out.print("Enter the username of the user to delete: ");
@@ -137,7 +164,12 @@ public class TestDriver {
             System.out.println("User not found. No user was deleted.");
         }
     }
-
+    /**
+     * Prompts the user to log in by providing a username and password.
+     *
+     * @param userDatabase The UserDatabase instance to validate user credentials.
+     * @param scanner The scanner used to read input from the user.
+     */
     private static void logIn(UserDatabase userDatabase, Scanner scanner){
       System.out.println("Enter your username: ");
       String username = scanner.nextLine();
@@ -161,7 +193,9 @@ public class TestDriver {
         }
       }
     }
-
+    /**
+     * Logs out the currently logged-in user, if any.
+     */
     private static void logOut(){
       if(currentUser == null){
         System.out.println("You are not logged in!");
@@ -171,7 +205,12 @@ public class TestDriver {
         System.out.println("Successfully logged out.");
       }
     }
-    
+    /**
+     * Prompts the logged-in user to add friends by entering their usernames.
+     *
+     * @param userDatabase The UserDatabase instance to update friend lists.
+     * @param scanner The scanner used to read input from the user.
+     */
     private static void addFriendPrompt(UserDatabase userDatabase, Scanner scanner){
       if(currentUser == null){
         System.out.println("You're not logged in ! Log in first. ");
