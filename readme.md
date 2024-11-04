@@ -11,15 +11,10 @@ UserDatabase handles database operations such as
 
 ##### Features and Methods
 - addUser: Adds a new user to the database and checks if they don’t already exist. Returns true on success, false if the user exists.
-
 - getUser: Retrieves a User object based on the given username.
-
 - updateUser: Updates an existing user’s details. Returns true if successful, false if the user doesn’t exist.
-
 -  deleteUser: Deletes a user after verifying the password (for security reasons)
-
 -  loadUsers(): Loads all users from the .txt file into a Map<String, User>.
-
 -  saveUsers(Map<String, User> users): Writes the user map back to the .txt file.
 
 ## User Class
@@ -45,3 +40,43 @@ For using I/O operations and serialization. Java Swing (javax.swing.text.Passwor
 
 ## PostDatabase
 
+#### The PostDatabase and its classes make up the essential of a social media post. The PostDatabase is responsible for the creation, reading, and retrieval of posts created in a .txt file with attributes such as title, content, author and date.
+
+##### PostDatabase handles operations such as:
+- Manage Post creation and storage
+- Text File creation
+- Uses ReentrantReadWriteLock for safe, concurrent access
+- Exception handling
+
+##### Features and Methods:
+- addPost(Post post): Adds a new post to the post list and appends it to the file. Returns
+true if post is successfully added, false otherwise
+- savePostFile(Post post): Appends a string representation of a post to the file. Uses
+BufferedWriter for efficiency
+- readPostDatabase(String fileName): Reads all the posts from the file into an array list.
+Returns the list of posts as strings.
+- getPost(): Returns all the posts stored in the post list.
+- getPostID(int id): Check if a post with a specified ID exists by reading all posts from the
+file.
+
+## Post Class
+
+#### The Post class represents attributes such as title, content, author, date, ID, comments, upvotes and downvotes.
+
+##### Attributes:
+- Title: The given name of a post
+- Content: The material of the post
+- Author: The name of the user who created the post
+- ID: A unique identifier for a post
+- Comments: The reactions to a post
+- Upvotes: An interactable agreement with a post
+- Downvotes: An interactable disagreement with a post
+
+*Methods explained in javadoc
+
+#### Database File Structure
+Post data is stored in a serialized .txt file specified by PostDatabase. The addPost and
+savePostFile methods ensure that the data is read, written, and stored correctly.
+
+#### Java Libraries:
+(please update cause I'm not that knowledgeable)
