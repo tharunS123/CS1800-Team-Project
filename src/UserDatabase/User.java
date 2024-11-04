@@ -1,14 +1,16 @@
-/**
- * @author Eashan and Abdullah
- * @version 31st October,2024
- * Importing necessary packages
- */
+package src.UserDatabase;
 import java.util.*;
 import java.io.*;
 
 /**
  * User class, manages attributes like user, UserName, password ,and friends
  * Serializable to convert data to byte stream (allow saving/loading user data to/from a file.)
+ */
+
+/**
+ * @author Eashan and Abdullah
+ * @version 31st October 2024
+ * Importing necessary packages
  */
 class User implements Serializable {
     
@@ -22,8 +24,7 @@ class User implements Serializable {
     private final String uuid;
     private Boolean loggedIn;
     private List<String> friends;
-    
-    
+
     /**
      * Constructor (initializes User with given UserName and password)
      * Random generated UUID
@@ -37,15 +38,13 @@ class User implements Serializable {
         this.friends = new ArrayList<>();
         this.loggedIn = false;
     }
-    
-    
+
     /**
      * getter methods
      * Method to return UserName
      * Method to return UUID
      * Method to return password
      */
-    
     public String getUsername() {
         return username;
     }
@@ -57,6 +56,7 @@ class User implements Serializable {
     public String getPassword(){
       return this.password;
     }
+
     /**
      * Method getLoggedIn()
      * @return true if user is logged in
@@ -65,7 +65,6 @@ class User implements Serializable {
     public boolean getLoggedIn() {
         return loggedIn;
     }
-
     
     /**
      * Method to return getFriends()
@@ -98,6 +97,7 @@ class User implements Serializable {
     public void logOut(){
       loggedIn = false;
     }
+
     /**
      * Method to add freinds
      * @param friendUsername
@@ -105,6 +105,7 @@ class User implements Serializable {
     public void addFriend(String friendUsername) {
         friends.add(friendUsername);
     }
+
     /**
      * Method to remove friends
      * @param friendUsername

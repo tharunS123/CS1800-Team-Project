@@ -1,8 +1,10 @@
+package src.UserDatabase;
+
 /**
  * 
  * A helper class to return User, and user information
  * @author Eashan JavaDoc by Abdullah
- * @version 31st October,2024
+ * @version 31st October 2024
  * 
  * @param <X>
  * @param <Y>

@@ -11,9 +11,13 @@ public class TestDriver {
     public static void main(String[] args) throws Exception {
         PostDatabase postdatabase = new PostDatabase("postdatabase.txt");
 
-        createPostPrompt(postdatabase);
+//        createPostPrompt(postdatabase);
 
-        loadAndDisplayPosts(postdatabase);
+//        loadAndDisplayPosts(postdatabase);
+
+//        Post post = new Post("Test Title", "Test Content", "Author");
+//        postdatabase.addPost(post);
+        postdatabase.readPostDatabase("postdatabase.txt");
     }
 
     private static void loadAndDisplayPosts(PostDatabase postdatabase) throws Exception {

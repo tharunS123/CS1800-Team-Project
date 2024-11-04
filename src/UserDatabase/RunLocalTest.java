@@ -1,19 +1,17 @@
-
-/**
- * 
- * The TestCase class is a JUnit test class for testing the functionality of the UserDatabase
- * and User classes. It includes setup and cleanup methods to manage a test database file
- * The test cases are designed to ensure that UserDatabase methods work as expected 
- * @author Abdullah and Eashan
- * @version Oct 31,2024
- */
+package src.UserDatabase;
 
 import org.junit.*;
 import static org.junit.Assert.*;
-
 import java.io.File;
 import java.util.List;
 
+/**
+ * The TestCase class is a JUnit test class for testing the functionality of the UserDatabase
+ * and User classes. It includes setup and cleanup methods to manage a test database file
+ * The test cases are designed to ensure that UserDatabase methods work as expected
+ * @author Abdullah and Eashan
+ * @version Oct 31 2024
+ */
 public class RunLocalTest {
 	/**
 	 * the name given to the test database file(.txt file),

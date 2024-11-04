@@ -1,12 +1,4 @@
-
-/**
- * The class UserDatabase handles the storage and retrieval of user data (User Database)
- * Stores in a .txt file
- * It uses read and write lock operations for thread safe operations
- * 
- * @author Eashan and Abdullah
- * @version 31st October,2024
- */
+package src.UserDatabase;
 
 /**import necessary packages (for read write operations and managing concurrent file handling
  * imported javax.swing.text.PasswordView used to hide characters while entering passwords
@@ -15,15 +7,24 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+/**
+ * The class UserDatabase handles the storage and retrieval of user data (User Database)
+ * Stores in a .txt file
+ * It uses read and write lock operations for thread safe operations
+ *
+ * @author Eashan and Abdullah
+ * @version 31st October 2024
+ */
 public class UserDatabase {
     private final File dbFile;
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-/**
- * A constructor
- * @param fileName is the name of the file where users are stored
- * Tests whether file exists in order to prevent duplicate files
- * Handles IO related exceptions
- */
+
+    /**
+    * A constructor
+    * @param fileName is the name of the file where users are stored
+    * Tests whether file exists in order to prevent duplicate files
+    * Handles IO related exceptions
+    */
     public UserDatabase(String fileName) {
         this.dbFile = new File(fileName);
         if (!dbFile.exists()) {
@@ -43,7 +44,6 @@ public class UserDatabase {
      * @return false , if user already exists (user not added)
      * @return true, if new user created
      */
-    
     public boolean addUser(User user) {
         lock.writeLock().lock();
         try {
@@ -93,6 +93,7 @@ public class UserDatabase {
             lock.writeLock().unlock();
         }
     }
+
     /**
      * loadUsers reads and deserializes user data from the file
      * @return , returns  a Map<String, User>, i.e. usernames to User objects.
@@ -121,7 +122,6 @@ public class UserDatabase {
         }
     }
 
-    
     /**
      * removes a user from database if 
      * @param username, takes user as argument 

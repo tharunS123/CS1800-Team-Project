@@ -1,7 +1,9 @@
+package src.UserDatabase;
 
 import java.util.Map;
 import java.util.Scanner;
 import java.io.Console;
+
 /**
  * The TestDriver class provides an interface to interact with a user database.
  * It allows users to create accounts, log in, delete accounts, add friends, and display
@@ -82,7 +84,6 @@ public class TestDriver {
           }
         }
     }
-
     
     /**
      * Loads and displays all users in the user database.
@@ -140,6 +141,7 @@ public class TestDriver {
             System.out.println("Username already exists. User was not added.");
         }
     }
+
     /**
      * Prompts the user to delete an existing user from the database.
      *
@@ -164,6 +166,7 @@ public class TestDriver {
             System.out.println("User not found. No user was deleted.");
         }
     }
+
     /**
      * Prompts the user to log in by providing a username and password.
      *
@@ -193,6 +196,7 @@ public class TestDriver {
         }
       }
     }
+
     /**
      * Logs out the currently logged-in user, if any.
      */
@@ -205,6 +209,7 @@ public class TestDriver {
         System.out.println("Successfully logged out.");
       }
     }
+
     /**
      * Prompts the logged-in user to add friends by entering their usernames.
      *
