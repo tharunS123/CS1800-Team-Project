@@ -1,6 +1,9 @@
 package src.PostDatabase;
 
+import src.PostDatabase.OldCode.PostDatabaseOld;
+
 import java.io.IOException;
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -12,7 +15,8 @@ import java.util.UUID;
  * @version Nov 2, 2024
  * @author Tharun Kumar and Mateo Toro Felipe
  */
-public class Post {
+public class Post implements Serializable {
+    private static final long serialVersionUID = 8796768980835010220L; //1L;
     private UUID id;
     private String title;
     private String content;
@@ -87,7 +91,7 @@ public class Post {
      */
     private boolean checkIdUsed(int id) {
         // check if id is used
-        PostDatabase db = new PostDatabase("postdatabase.txt");
+        PostDatabaseOld db = new PostDatabaseOld("postdatabase.txt");
         return db.getPostID(id);
     }
 

@@ -1,6 +1,7 @@
 package src.PostDatabase;
 
 import org.junit.Test;
+import src.PostDatabase.OldCode.PostDatabaseOld;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public class RunLocalTest {
      */
     @Test
     public void testAddPost() {
-        PostDatabase postDatabase = new PostDatabase(testFileName);
+        PostDatabaseOld postDatabase = new PostDatabaseOld(testFileName);
         Post post = new Post("Test Title", "Test Content", "Author");
 
         assertTrue(postDatabase.addPost(post)); // Test if adding a post returns true
@@ -36,7 +37,7 @@ public class RunLocalTest {
      */
     @Test
     public void testSavePostFile() throws Exception {
-        PostDatabase postDatabase = new PostDatabase(testFileName);
+        PostDatabaseOld postDatabase = new PostDatabaseOld(testFileName);
         Post post = new Post("Test Title", "Test Content", "Author");
         postDatabase.addPost(post); // Save the post
 
@@ -55,7 +56,7 @@ public class RunLocalTest {
      */
     @Test
     public void testReadPostDatabase() throws Exception {
-        PostDatabase postDatabase = new PostDatabase(testFileName);
+        PostDatabaseOld postDatabase = new PostDatabaseOld(testFileName);
         Post post = new Post("Test Title", "Test Content", "Author");
         postDatabase.addPost(post); // Add a post
 
@@ -68,7 +69,7 @@ public class RunLocalTest {
      */
     @Test
     public void testGetPosts() {
-        PostDatabase postDatabase = new PostDatabase(testFileName);
+        PostDatabaseOld postDatabase = new PostDatabaseOld(testFileName);
         Post post = new Post("Test Title", "Test Content", "Author");
         postDatabase.addPost(post); // Add a post
 
@@ -82,7 +83,7 @@ public class RunLocalTest {
      */
     @Test
     public void testGetPostID() {
-        PostDatabase postDatabase = new PostDatabase(testFileName);
+        PostDatabaseOld postDatabase = new PostDatabaseOld(testFileName);
         Post post = new Post("Test Title", "Test Content", "Author");
         postDatabase.addPost(post); // Add a post
 
@@ -95,7 +96,7 @@ public class RunLocalTest {
      */
     @Test
     public void testGetPostIDReturnsFalseForNonexistentID() {
-        PostDatabase postDatabase = new PostDatabase(testFileName);
+        PostDatabaseOld postDatabase = new PostDatabaseOld(testFileName);
         boolean exists = postDatabase.getPostID(-1); // Check for a nonexistent ID
         assertFalse(exists); // Ensure it returns false
     }
@@ -105,7 +106,7 @@ public class RunLocalTest {
      */
     @Test
     public void testAddPostHandlesNull() {
-        PostDatabase postDatabase = new PostDatabase(testFileName);
+        PostDatabaseOld postDatabase = new PostDatabaseOld(testFileName);
         RuntimeException exception = assertThrows(RuntimeException.class, () -> postDatabase.addPost(null)); // Expect RuntimeException
     }
 }
