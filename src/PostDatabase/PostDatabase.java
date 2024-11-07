@@ -1,5 +1,7 @@
 package src.PostDatabase;
 
+import src.UserDatabase.UserDatabase;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -38,6 +40,16 @@ public class PostDatabase {
         }
     }
 
+    public Post getPost(String title) {
+        lock.readLock().lock();
+        try {
+            Map<String, Post> posts = loadPosts();
+            return posts.get(title);
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
     @SuppressWarnings("unchecked")
     public Map<String, Post> loadPosts() {
         if (dbFile.length() == 0) {
@@ -56,6 +68,59 @@ public class PostDatabase {
             oos.writeObject(posts);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public boolean deletePost(Post post) {
+        lock.writeLock().lock();
+        try {
+            Map<String, Post> posts = loadPosts();
+            posts.remove(post.toString(), post);
+            savePosts(posts);
+            return true;
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    public boolean updatePost(Post post) {
+        lock.writeLock().lock();
+        try {
+            Map<String, Post> posts = loadPosts();
+//            if (!posts.containsKey(post.toString())) return false;
+            posts.put(post.toString(), post);
+            savePosts(posts);
+            return true;
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    public Post lookUpPost(String title) {
+        lock.readLock().lock();
+        try {
+            Map<String, Post> posts = loadPosts();
+            for (Post post : posts.values()) {
+                if (post.getTitle().equals(title)) {
+                    return post;
+                }
+            }
+            return null;
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    public boolean deletePost(String title) {
+        lock.writeLock().lock();
+        try {
+            Map<String, Post> posts = loadPosts();
+            Post deletepost = lookUpPost(title);
+            posts.remove(deletepost.toString(), deletepost);
+            savePosts(posts);
+            return true;
+        } finally {
+            lock.writeLock().unlock();
         }
     }
 }

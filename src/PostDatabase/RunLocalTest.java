@@ -16,7 +16,6 @@ import static org.junit.Assert.*;
  * @author Tharun Kumar and Mateo Toro Felipe
  */
 public class RunLocalTest {
-
     private final String testFileName = "test_postdatabase.txt";
 
     /**
