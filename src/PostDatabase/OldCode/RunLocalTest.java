@@ -1,7 +1,7 @@
-package src.PostDatabase;
+package src.PostDatabase.OldCode;
 
 import org.junit.Test;
-import src.PostDatabase.OldCode.PostDatabaseOld;
+import src.PostDatabase.Post;
 
 import java.io.File;
 import java.util.ArrayList;

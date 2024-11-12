@@ -35,7 +35,6 @@ public class TestDriver {
             } else {
                 System.out.println("4. Display all posts");
                 System.out.println("5. Add a new post");
-//                System.out.println("6. Comment on a post");
                 System.out.println("6. Look up post");
                 System.out.println("7. Logout");
             }
@@ -44,7 +43,6 @@ public class TestDriver {
             if (scanner.hasNextInt()) {
                 int choice = scanner.nextInt();
                 scanner.nextLine(); // Consume newline left-over
-
                 switch (choice) {
                     case 1:
                         login(userDatabase, scanner);
@@ -172,6 +170,7 @@ public class TestDriver {
         while (loggingIn) {
             if (!loggedInTuple.x) {
                 System.out.println("Not correct password. no Friends were added");
+                loggingIn = false;
             } else {
                 currentUser = loggedInTuple.y;
                 System.out.println("Successfully logged in as " + currentUser.getUsername());
@@ -203,8 +202,9 @@ public class TestDriver {
                 addingComment = false;
             } else {
                 currentUserPost.addComment(new Comment(currentUser.getUsername(), comment));
-                boolean update = postDatabase.updatePost(currentUserPost);
-                System.out.println(update);
+                // TODO: added the comment is an issue. It is not updating the post in the database.
+//                boolean update = postDatabase.updatePost(currentUserPost);
+//                System.out.println(update);
             }
         }
     }
@@ -217,40 +217,53 @@ public class TestDriver {
         System.out.println("Enter the title of the post that you looking for: ");
         String title = scanner.nextLine();
 
-        currentUserPost= postDatabase.lookUpPost(title);
+        currentUserPost = postDatabase.lookUpPost(title); //works
 
         if (currentUserPost == null) {
-            System.out.println("Post not found.");
+            System.out.println("Post not found."); //works
             return;
         }
 
-        System.out.println("The you are looking for is there. Choise what task you want todo: ");
-        System.out.println("1. Add a comment");
-        System.out.println("2. Upvote");
-        System.out.println("3. Downvote");
+        boolean isEnd = true;
 
-        int choice = scanner.nextInt();
+        while (isEnd) {
+            System.out.println("The you are looking for is there. Choise what task you want todo: ");
+            System.out.println("1. Add a comment");
+            System.out.println("2. Upvote");
+            System.out.println("3. Downvote");
+            System.out.println("4. Show Post");
+            System.out.println("5. Exit");
 
-        switch (choice) {
-            case 1:
-                addCommentPrompt(postDatabase, userDatabase, scanner);
-                break;
-            case 2:
-                currentUserPost.upVote();
-                previousPost = currentUserPost;
-                postDatabase.deletePost(previousPost);
-                postDatabase.updatePost(currentUserPost);
-                break;
-            case 3:
-                currentUserPost.downVote();
-                previousPost = currentUserPost;
-                postDatabase.deletePost(previousPost);
-                postDatabase.updatePost(currentUserPost);
-                break;
-            default:
-                System.out.println("Invalid choice. Please try again.");
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    addCommentPrompt(postDatabase, userDatabase, scanner);
+                    break;
+                case 2:
+                    currentUserPost.upVote();
+                    // TODO: its not updating the post in the database.
+//                previousPost = currentUserPost;
+//                System.out.println(postDatabase.deletePost(previousPost));
+                    System.out.println(postDatabase.updatePost(currentUserPost));
+                    System.out.println(postDatabase.deletePost(currentUserPost));
+                    break;
+                case 3:
+                    // TODO: its not updating the post in the database.
+                    currentUserPost.downVote();
+                    previousPost = currentUserPost;
+                    postDatabase.deletePost(previousPost);
+                    postDatabase.updatePost(currentUserPost);
+                    break;
+                case 4:
+                    System.out.println(currentUserPost);
+                    break;
+                case 5:
+                    isEnd = false;
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
         }
-
-        System.out.println("The post is: " + currentUserPost.toString());
     }
 }

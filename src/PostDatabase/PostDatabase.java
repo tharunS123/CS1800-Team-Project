@@ -76,6 +76,7 @@ public class PostDatabase {
         try {
             Map<String, Post> posts = loadPosts();
             posts.remove(post.toString(), post);
+            System.out.println(posts);
             savePosts(posts);
             return true;
         } finally {
@@ -87,7 +88,6 @@ public class PostDatabase {
         lock.writeLock().lock();
         try {
             Map<String, Post> posts = loadPosts();
-//            if (!posts.containsKey(post.toString())) return false;
             posts.put(post.toString(), post);
             savePosts(posts);
             return true;
@@ -108,19 +108,6 @@ public class PostDatabase {
             return null;
         } finally {
             lock.readLock().unlock();
-        }
-    }
-
-    public boolean deletePost(String title) {
-        lock.writeLock().lock();
-        try {
-            Map<String, Post> posts = loadPosts();
-            Post deletepost = lookUpPost(title);
-            posts.remove(deletepost.toString(), deletepost);
-            savePosts(posts);
-            return true;
-        } finally {
-            lock.writeLock().unlock();
         }
     }
 }
