@@ -23,7 +23,8 @@ public class User implements Serializable {
     private final String password;
     private final String uuid;
     private Boolean loggedIn;
-    private List<String> friends;
+    private Set<String> friends;
+    private Set<User> blockedUsers;
 
     /**
      * Constructor (initializes User with given UserName and password)
@@ -85,9 +86,9 @@ public class User implements Serializable {
     public Tuple<Boolean, User> logIn(String password){
       if(password.equals(this.password)){
         loggedIn = true;
-        return new Tuple(true, this);
+        return new Tuple<Boolean,User>(true, this);
       }else {
-        return new Tuple(false, null);
+        return new Tuple<Boolean,User>(false, null);
       }
     }
 
@@ -112,5 +113,22 @@ public class User implements Serializable {
      */
     public void removeFriend(String friendUsername) {
         friends.remove(friendUsername);
+    }
+
+    /**
+     * Method to Block a user
+     * @param friendUsername
+     */
+    public void blockUser(User userName){
+      blockedUsers.add(userName);
+    }
+
+    /**
+     * Method to Block a user
+     * @param friendUsername
+     * @return Wether or not userwas removed
+     */
+    public boolean unblockUser(User username){
+      return blockedUsers.remove(username);
     }
 }
