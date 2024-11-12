@@ -1,131 +1,111 @@
 package src.PostDatabase;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
+import src.UserDatabase.UserDatabase;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-/**
- * The PostDatabase class manages a collection of Post objects. It provides methods to add, read, and retrieve posts from a file.
- * It uses a ReentrantReadWriteLock to ensure thread-safe operations.
- *
- * @version Nov 2, 2024
- */
 public class PostDatabase {
-    private String file;
-    private ArrayList<Post> post;
+    private final File dbFile;
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
-    /**
-     * Constructs a new PostDatabase with the specified filename.
-     *
-     * @param filename the name of the file to store posts
-     */
-    public PostDatabase(String filename) {
-        this.file = filename;
-        try {
-            this.post = new ArrayList<>();
-        } catch (Exception e) {
-            e.printStackTrace();
+    public PostDatabase(String fileName) {
+        this.dbFile = new File(fileName);
+        if (!dbFile.exists()) {
+            try {
+                dbFile.createNewFile();
+                savePosts(new HashMap<>());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    /**
-     * Adds a post to the database and saves it to the file.
-     *
-     * @param post the post to add
-     * @return true if the post was added successfully, false otherwise
-     */
     public boolean addPost(Post post) {
         lock.writeLock().lock();
         try {
-            // Add post to file
-            this.post.add(post);
-            savePostFile(post);
+            Map<String, Post> posts = loadPosts();
+            posts.put(post.toString(), post);
+            savePosts(posts);
             return true;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         } finally {
             lock.writeLock().unlock();
         }
     }
 
-    /**
-     * Saves a post to the file.
-     *
-     * @param post the post to save
-     */
-    private void savePostFile(Post post) {
-        // Save post to file
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) {
-            bw.append(post.toString());
-            bw.newLine();
+    public Post getPost(String title) {
+        lock.readLock().lock();
+        try {
+            Map<String, Post> posts = loadPosts();
+            return posts.get(title);
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public Map<String, Post> loadPosts() {
+        if (dbFile.length() == 0) {
+            return new HashMap<>();
+        }
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(dbFile))) {
+            return (Map<String, Post>) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return new HashMap<>();
+        }
+    }
+
+    private void savePosts(Map<String, Post> posts) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(dbFile))) {
+            oos.writeObject(posts);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    /**
-     * Reads posts from the specified file and returns them as an ArrayList.
-     *
-     * @param filename the name of the file to read posts from
-     * @return an ArrayList of posts
-     * @throws Exception if an error occurs while reading the file
-     */
-    public ArrayList<String> readPostDatabase(String filename) throws Exception {
-        lock.readLock().lock();
-        // Read post from file
+    public boolean deletePost(Post post) {
+        lock.writeLock().lock();
+        try {
+            Map<String, Post> posts = loadPosts();
+            posts.remove(post.toString(), post);
+            System.out.println(posts);
+            savePosts(posts);
+            return true;
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
 
-        ArrayList<String> postArray = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(filename)))  {
-            String line;
-            // TODO: still needed to work on on the logic.
-            while ((line = br.readLine()) != null) {
-                postArray.add(line);
+    public boolean updatePost(Post post) {
+        lock.writeLock().lock();
+        try {
+            Map<String, Post> posts = loadPosts();
+            posts.put(post.toString(), post);
+            savePosts(posts);
+            return true;
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    public Post lookUpPost(String title) {
+        lock.readLock().lock();
+        try {
+            Map<String, Post> posts = loadPosts();
+            for (Post post : posts.values()) {
+                if (post.getTitle().equals(title)) {
+                    return post;
+                }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            lock.readLock().unlock();
-        }
-
-        return postArray;
-    }
-
-    /**
-     * Returns all posts in the database.
-     *
-     * @return an ArrayList of posts
-     */
-    public ArrayList<Post> getPosts() {
-        lock.readLock().lock();
-        try {
-            // Get all posts from file
-            return this.post;
-        } finally {
-            lock.readLock().unlock();
-        }
-    }
-
-    /**
-     * Checks if a post with the specified ID exists in the database.
-     *
-     * @param id the ID to check
-     * @return true if a post with the specified ID exists, false otherwise
-     */
-    public boolean getPostID(int id) {
-        lock.readLock().lock();
-        try {
-
-            //TODO: still need to work on it.
-            ArrayList<String> postArray = readPostDatabase(file);
-            System.out.println(postArray);
-            return false;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            return null;
         } finally {
             lock.readLock().unlock();
         }

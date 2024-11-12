@@ -1,6 +1,8 @@
 package src.PostDatabase;
 
-import java.io.IOException;
+import src.PostDatabase.OldCode.PostDatabaseOld;
+
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -12,7 +14,8 @@ import java.util.UUID;
  * @version Nov 2, 2024
  * @author Tharun Kumar and Mateo Toro Felipe
  */
-public class Post {
+public class Post implements Serializable {
+    private static final long serialVersionUID = 8796768980835010220L; //1L;
     private UUID id;
     private String title;
     private String content;
@@ -20,7 +23,7 @@ public class Post {
     private Timestamp date;
     private int upVote;
     private int downVote;
-    private ArrayList<String> comments;
+    private ArrayList<Comment> comments;
 
     /**
      * Constructs a new Post with the specified title, content, and author.
@@ -41,45 +44,6 @@ public class Post {
     }
 
     /**
-     * Constructs a new Post from a string of data.
-     *
-     * @param data the string containing post data
-     * @throws IOException if the data is invalid
-     */
-    public Post(String data) throws IOException {
-        try {
-            String[] info = data.split("]\n");
-            this.id = UUID.fromString(info[0]);
-            this.title = info[1];
-            this.content = info[2];
-            this.author = info[3];
-            this.date = Timestamp.valueOf(info[4]);
-            this.upVote = Integer.parseInt(info[5]);
-            this.downVote = Integer.parseInt(info[6]);
-        } catch (Exception e) {
-            throw new IOException("Bad Post Data");
-        }
-    }
-
-    /**
-     * Constructs a new Post with default values when an IOException occurs.
-     *
-     * @param e the IOException that occurred
-     */
-    public Post(IOException e) {
-        String str = e.getMessage();
-
-        this.title = "Bad Post Data";
-        this.content = "Bad Post Data";
-        this.author = "Bad Post Data";
-        this.date = new Timestamp(System.currentTimeMillis());
-        this.comments = new ArrayList<>();
-        this.upVote = 0;
-        this.downVote = 0;
-        this.id = UUID.randomUUID();
-    }
-
-    /**
      * Checks if the given ID is used in the PostDatabase.
      *
      * @param id the ID to check
@@ -87,7 +51,7 @@ public class Post {
      */
     private boolean checkIdUsed(int id) {
         // check if id is used
-        PostDatabase db = new PostDatabase("postdatabase.txt");
+        PostDatabaseOld db = new PostDatabaseOld("postdatabase.txt");
         return db.getPostID(id);
     }
 
@@ -113,9 +77,11 @@ public class Post {
      * Adds a comment to the post.
      *
      * @param comment the comment to add
+     * @return
      */
-    public void addComment(String comment) {
+    public boolean addComment(Comment comment) {
         comments.add(comment);
+        return true;
     }
 
     /**
@@ -123,7 +89,7 @@ public class Post {
      *
      * @return the list of comments
      */
-    public ArrayList<String> getComments() {
+    public ArrayList<Comment> getComments() {
         return comments;
     }
 
@@ -204,7 +170,7 @@ public class Post {
      *
      * @param comments the comment to add
      */
-    public void setComments(String comments) {
+    public void addComments(Comment comments) {
         this.comments.add(comments);
     }
 

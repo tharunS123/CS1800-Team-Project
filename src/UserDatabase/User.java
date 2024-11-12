@@ -12,7 +12,7 @@ import java.io.*;
  * @version 31st October 2024
  * Importing necessary packages
  */
-class User implements Serializable {
+public class User implements Serializable {
     
 	/**
 	 * serialVersionUID is a unique indentifier for each class version compatibility during serialization
