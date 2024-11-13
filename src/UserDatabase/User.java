@@ -1,4 +1,6 @@
 package src.UserDatabase;
+import src.UserDatabase.Interface.UserInterface;
+
 import java.util.*;
 import java.io.*;
 
@@ -12,7 +14,7 @@ import java.io.*;
  * @version 31st October 2024
  * Importing necessary packages
  */
-public class User implements Serializable {
+public class User implements Serializable, UserInterface {
     
 	/**
 	 * serialVersionUID is a unique indentifier for each class version compatibility during serialization
@@ -46,14 +48,17 @@ public class User implements Serializable {
      * Method to return UUID
      * Method to return password
      */
+    @Override
     public String getUsername() {
         return username;
     }
 
+    @Override
     public String getUuid() {
         return uuid;
     }
 
+    @Override
     public String getPassword(){
       return this.password;
     }
@@ -63,6 +68,7 @@ public class User implements Serializable {
      * @return true if user is logged in
      * @return fale is user if user is not able to login
      */
+    @Override
     public boolean getLoggedIn() {
         return loggedIn;
     }
@@ -72,6 +78,7 @@ public class User implements Serializable {
      * 
      * @return  Friends list
      */
+    @Override
     public List<String> getFriends() {
         return new ArrayList<>(friends);
     }
@@ -83,6 +90,7 @@ public class User implements Serializable {
      * @return true if password matches
      * @return false if password doesn't matches
      */
+    @Override
     public Tuple<Boolean, User> logIn(String password){
       if(password.equals(this.password)){
         loggedIn = true;
@@ -95,6 +103,7 @@ public class User implements Serializable {
     /**
      * log out method
      */
+    @Override
     public void logOut(){
       loggedIn = false;
     }
@@ -103,6 +112,7 @@ public class User implements Serializable {
      * Method to add freinds
      * @param friendUsername
      */
+    @Override
     public void addFriend(String friendUsername) {
         friends.add(friendUsername);
     }
@@ -111,6 +121,7 @@ public class User implements Serializable {
      * Method to remove friends
      * @param friendUsername
      */
+    @Override
     public void removeFriend(String friendUsername) {
         friends.remove(friendUsername);
     }

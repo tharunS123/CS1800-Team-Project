@@ -1,6 +1,6 @@
 package src.PostDatabase;
 
-import src.UserDatabase.UserDatabase;
+import src.PostDatabase.Interface.PostDatabaseInterface;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class PostDatabase {
+public class PostDatabase implements PostDatabaseInterface {
     private final File dbFile;
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
@@ -28,6 +28,7 @@ public class PostDatabase {
         }
     }
 
+    @Override
     public boolean addPost(Post post) {
         lock.writeLock().lock();
         try {
@@ -40,6 +41,7 @@ public class PostDatabase {
         }
     }
 
+    @Override
     public Post getPost(String title) {
         lock.readLock().lock();
         try {
@@ -50,6 +52,7 @@ public class PostDatabase {
         }
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Map<String, Post> loadPosts() {
         if (dbFile.length() == 0) {
@@ -63,7 +66,8 @@ public class PostDatabase {
         }
     }
 
-    private void savePosts(Map<String, Post> posts) {
+    @Override
+    public void savePosts(Map<String, Post> posts) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(dbFile))) {
             oos.writeObject(posts);
         } catch (IOException e) {
@@ -71,6 +75,7 @@ public class PostDatabase {
         }
     }
 
+    @Override
     public boolean deletePost(Post post) {
         lock.writeLock().lock();
         try {
@@ -84,6 +89,7 @@ public class PostDatabase {
         }
     }
 
+    @Override
     public boolean updatePost(Post post) {
         lock.writeLock().lock();
         try {
@@ -96,6 +102,7 @@ public class PostDatabase {
         }
     }
 
+    @Override
     public Post lookUpPost(String title) {
         lock.readLock().lock();
         try {
