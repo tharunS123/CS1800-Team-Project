@@ -1,8 +1,8 @@
 package src.PostDatabase;
 
+import src.PostDatabase.Interface.PostInterface;
 import src.PostDatabase.OldCode.PostDatabaseOld;
 
-import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -14,8 +14,8 @@ import java.util.UUID;
  * @version Nov 2, 2024
  * @author Tharun Kumar and Mateo Toro Felipe
  */
-public class Post implements Serializable {
-    private static final long serialVersionUID = 8796768980835010220L; //1L;
+public class Post implements PostInterface {
+//    private static final long serialVersionUID = 8796768980835010220L; //1L;
     private UUID id;
     private String title;
     private String content;
@@ -60,6 +60,7 @@ public class Post implements Serializable {
      *
      * @return the ID of the post
      */
+    @Override
     public UUID getID() {
         return id;
     }
@@ -69,6 +70,7 @@ public class Post implements Serializable {
      *
      * @param id the new ID of the post
      */
+    @Override
     public void setID(UUID id) {
         this.id = id;
     }
@@ -79,6 +81,7 @@ public class Post implements Serializable {
      * @param comment the comment to add
      * @return
      */
+    @Override
     public boolean addComment(Comment comment) {
         comments.add(comment);
         return true;
@@ -89,6 +92,7 @@ public class Post implements Serializable {
      *
      * @return the list of comments
      */
+    @Override
     public ArrayList<Comment> getComments() {
         return comments;
     }
@@ -98,6 +102,7 @@ public class Post implements Serializable {
      *
      * @return the title of the post
      */
+    @Override
     public String getTitle() {
         return title;
     }
@@ -107,6 +112,7 @@ public class Post implements Serializable {
      *
      * @return the content of the post
      */
+    @Override
     public String getContent() {
         return content;
     }
@@ -116,6 +122,7 @@ public class Post implements Serializable {
      *
      * @return the author of the post
      */
+    @Override
     public String getAuthor() {
         return author;
     }
@@ -125,6 +132,7 @@ public class Post implements Serializable {
      *
      * @return the timestamp of the post
      */
+    @Override
     public long getTime() {
         return date.getTime();
     }
@@ -134,6 +142,7 @@ public class Post implements Serializable {
      *
      * @return the date and time of the post
      */
+    @Override
     public String getDataAndTime() {
         return date.toString();
     }
@@ -143,6 +152,7 @@ public class Post implements Serializable {
      *
      * @param title the new title of the post
      */
+    @Override
     public void setTitle(String title) {
         this.title = title;
     }
@@ -152,6 +162,7 @@ public class Post implements Serializable {
      *
      * @param content the new content of the post
      */
+    @Override
     public void setContent(String content) {
         this.content = content;
     }
@@ -161,6 +172,7 @@ public class Post implements Serializable {
      *
      * @param author the new author of the post
      */
+    @Override
     public void setAuthor(String author) {
         this.author = author;
     }
@@ -170,6 +182,7 @@ public class Post implements Serializable {
      *
      * @param comments the comment to add
      */
+    @Override
     public void addComments(Comment comments) {
         this.comments.add(comments);
     }
@@ -179,6 +192,7 @@ public class Post implements Serializable {
      *
      * @return the number of upvotes
      */
+    @Override
     public int getUpVote() {
         return upVote;
     }
@@ -186,6 +200,7 @@ public class Post implements Serializable {
     /**
      * Increments the number of upvotes by one.
      */
+    @Override
     public void upVote() {
         upVote++;
     }
@@ -195,6 +210,7 @@ public class Post implements Serializable {
      *
      * @return the number of downvotes
      */
+    @Override
     public int getDownVote() {
         return downVote;
     }
@@ -202,6 +218,7 @@ public class Post implements Serializable {
     /**
      * Increments the number of downvotes by one.
      */
+    @Override
     public void downVote() {
         downVote++;
     }

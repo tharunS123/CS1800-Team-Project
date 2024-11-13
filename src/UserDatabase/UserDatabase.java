@@ -3,6 +3,8 @@ package src.UserDatabase;
 /**import necessary packages (for read write operations and managing concurrent file handling
  * imported javax.swing.text.PasswordView used to hide characters while entering passwords
  */
+import src.UserDatabase.Interface.UserDatabaseInterface;
+
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -15,7 +17,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @author Eashan and Abdullah
  * @version 31st October 2024
  */
-public class UserDatabase {
+public class UserDatabase implements UserDatabaseInterface {
     private final File dbFile;
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
@@ -44,6 +46,7 @@ public class UserDatabase {
      * @return false , if user already exists (user not added)
      * @return true, if new user created
      */
+    @Override
     public boolean addUser(User user) {
         lock.writeLock().lock();
         try {
@@ -63,6 +66,7 @@ public class UserDatabase {
      * @return Loads the user data from the file and returns the User, 
      * associated with the username
      */
+    @Override
     public User getUser(String username) {
         lock.readLock().lock();
         try {
@@ -81,6 +85,7 @@ public class UserDatabase {
      * @return false if user not found
      * @return true is user found
      */
+    @Override
     public boolean updateUser(User user) {
         lock.writeLock().lock();
         try {
@@ -98,6 +103,7 @@ public class UserDatabase {
      * loadUsers reads and deserializes user data from the file
      * @return , returns  a Map<String, User>, i.e. usernames to User objects.
      */
+    @Override
     @SuppressWarnings("unchecked")
     public Map<String, User> loadUsers() {
         if (dbFile.length() == 0) return new HashMap<>(); 
@@ -129,6 +135,7 @@ public class UserDatabase {
      * @return false if password doesn't match
      * @return true is password matches (user deletion confirmed)
      */
+    @Override
     public boolean deleteUser(User username, String password) {
       lock.writeLock().lock();
       if(!(password.equals(username.getPassword())))return false;
