@@ -1,7 +1,6 @@
 package src.PostDatabase;
 
 import src.PostDatabase.Interface.PostInterface;
-import src.PostDatabase.OldCode.PostDatabaseOld;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -41,18 +40,6 @@ public class Post implements PostInterface {
         this.upVote = 0;
         this.downVote = 0;
         this.id = UUID.randomUUID();
-    }
-
-    /**
-     * Checks if the given ID is used in the PostDatabase.
-     *
-     * @param id the ID to check
-     * @return true if the ID is used, false otherwise
-     */
-    private boolean checkIdUsed(int id) {
-        // check if id is used
-        PostDatabaseOld db = new PostDatabaseOld("postdatabase.txt");
-        return db.getPostID(id);
     }
 
     /**
