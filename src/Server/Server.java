@@ -1,52 +1,54 @@
 package src.Server;
 
-import src.PostDatabase.Post;
-import src.PostDatabase.PostDatabase;
-
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.net.*;
 
 public class Server {
-    private static final int POST = 4242;
-    private static final List<String[]> POST_DATABASE = new ArrayList<>();
-
     public static void main(String[] args) {
-        PostDatabase postDatabase = new PostDatabase("post_database.txt");
-        postDatabase.loadPosts();
+        try {
+            ServerSocket serverSocket = new ServerSocket(12345);
+            System.out.println("Server is running and waiting for clients...");
 
-        System.out.println("Server Started, waiting for connections....");
-
-        try (ServerSocket serverSocket = new ServerSocket(POST)) {
             while (true) {
-                try (Socket clientSocket = serverSocket.accept()) {
-                    System.out.println("Client connected");
-                    handleClient(clientSocket, postDatabase);
-                }
+                // Accept a client connection
+                Socket clientSocket = serverSocket.accept();
+                System.out.println("New client connected: " + clientSocket.getInetAddress());
+
+                // Handle the client connection in a new thread
+                new ClientHandler(clientSocket).start();
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private static void handleClient(Socket clientSocket, PostDatabase postDatabase) throws IOException {
-        try (ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
-             ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream())) {
-//            String searchText = (String) in.readObject();
-            Map<String, Post> posts = postDatabase.loadPosts();
-            out.writeObject(posts);
+    // ClientHandler class to handle communication with each client
+    private static class ClientHandler extends Thread {
+        private Socket clientSocket;
 
-            Integer index = (Integer) in.readObject();
-            if (index != null && index >= 0 && index < posts.size()) {
-                out.writeObject(POST_DATABASE.get(index)[2]);
+        public ClientHandler(Socket socket) {
+            this.clientSocket = socket;
+        }
+
+        public void run() {
+            try (
+                    BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                    PrintWriter output = new PrintWriter(clientSocket.getOutputStream(), true);
+            ) {
+                String clientMessage;
+                while ((clientMessage = input.readLine()) != null) {
+                    System.out.println("Received from client: " + clientMessage);
+                    output.println("Server: " + clientMessage);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    clientSocket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
         }
     }
 }
