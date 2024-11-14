@@ -14,13 +14,12 @@ import java.io.*;
  * @version 31st October 2024
  * Importing necessary packages
  */
-public class User implements Serializable, UserInterface {
+public class User implements UserInterface {
     
 	/**
 	 * serialVersionUID is a unique indentifier for each class version compatibility during serialization
 	 * Related final(so data remain constant and unchanged) instance variable declared (UserName, password and UUID)
 	 */
-	private static final long serialVersionUID = 1L;
     private final String username;
     private final String password;
     private final String uuid;
@@ -38,7 +37,72 @@ public class User implements Serializable, UserInterface {
         this.username = username;
         this.password = password;
         this.uuid = UUID.randomUUID().toString();
-        this.friends = new ArrayList<>();
+        this.friends = new Set<String>() {
+            @Override
+            public int size() {
+                return 0;
+            }
+
+            @Override
+            public boolean isEmpty() {
+                return false;
+            }
+
+            @Override
+            public boolean contains(Object o) {
+                return false;
+            }
+
+            @Override
+            public Iterator<String> iterator() {
+                return null;
+            }
+
+            @Override
+            public Object[] toArray() {
+                return new Object[0];
+            }
+
+            @Override
+            public <T> T[] toArray(T[] a) {
+                return null;
+            }
+
+            @Override
+            public boolean add(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean remove(Object o) {
+                return false;
+            }
+
+            @Override
+            public boolean containsAll(Collection<?> c) {
+                return false;
+            }
+
+            @Override
+            public boolean addAll(Collection<? extends String> c) {
+                return false;
+            }
+
+            @Override
+            public boolean retainAll(Collection<?> c) {
+                return false;
+            }
+
+            @Override
+            public boolean removeAll(Collection<?> c) {
+                return false;
+            }
+
+            @Override
+            public void clear() {
+
+            }
+        };
         this.loggedIn = false;
     }
 
@@ -128,7 +192,7 @@ public class User implements Serializable, UserInterface {
 
     /**
      * Method to Block a user
-     * @param friendUsername
+     * @param 'friendUsername'
      */
     public void blockUser(User userName){
       blockedUsers.add(userName);
@@ -136,7 +200,7 @@ public class User implements Serializable, UserInterface {
 
     /**
      * Method to Block a user
-     * @param friendUsername
+     * @param 'friendUsername'
      * @return Wether or not userwas removed
      */
     public boolean unblockUser(User username){
