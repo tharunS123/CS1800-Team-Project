@@ -14,7 +14,7 @@ import java.io.*;
  * @version 31st October 2024
  * Importing necessary packages
  */
-public class User implements UserInterface {
+public class User implements UserInterface, Serializable {
     
 	/**
 	 * serialVersionUID is a unique indentifier for each class version compatibility during serialization
@@ -26,6 +26,7 @@ public class User implements UserInterface {
     private Boolean loggedIn;
     private Set<String> friends;
     private Set<User> blockedUsers;
+    private static final long serialVersionUID = 1L;  // Optional but recommended
 
     /**
      * Constructor (initializes User with given UserName and password)
@@ -37,72 +38,7 @@ public class User implements UserInterface {
         this.username = username;
         this.password = password;
         this.uuid = UUID.randomUUID().toString();
-        this.friends = new Set<String>() {
-            @Override
-            public int size() {
-                return 0;
-            }
-
-            @Override
-            public boolean isEmpty() {
-                return false;
-            }
-
-            @Override
-            public boolean contains(Object o) {
-                return false;
-            }
-
-            @Override
-            public Iterator<String> iterator() {
-                return null;
-            }
-
-            @Override
-            public Object[] toArray() {
-                return new Object[0];
-            }
-
-            @Override
-            public <T> T[] toArray(T[] a) {
-                return null;
-            }
-
-            @Override
-            public boolean add(String s) {
-                return false;
-            }
-
-            @Override
-            public boolean remove(Object o) {
-                return false;
-            }
-
-            @Override
-            public boolean containsAll(Collection<?> c) {
-                return false;
-            }
-
-            @Override
-            public boolean addAll(Collection<? extends String> c) {
-                return false;
-            }
-
-            @Override
-            public boolean retainAll(Collection<?> c) {
-                return false;
-            }
-
-            @Override
-            public boolean removeAll(Collection<?> c) {
-                return false;
-            }
-
-            @Override
-            public void clear() {
-
-            }
-        };
+        this.friends = new HashSet<String>();
         this.loggedIn = false;
     }
 
