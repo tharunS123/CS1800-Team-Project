@@ -16,42 +16,61 @@ public class Client {
             String choice;
             boolean running = true;
 
+            // Read initial message from server
             System.out.println(input.readLine());
             String userChoice = scanner.nextLine().trim().toLowerCase();
             output.println(userChoice);
+
             while (running) {
                 String serverResponse = input.readLine();
-                System.out.println(serverResponse);
-                switch (serverResponse) {
-                  case "Enter your username and password":
-                    System.out.println("Please enter your username:");
-                    String username = scanner.nextLine().trim().toLowerCase();
-                    Console console = System.console();
-                    console.printf("Please enter your password: ");
-                    char[] passwordChars = console.readPassword();
-                    String password = new String(passwordChars);
-                    choice = username+":"+password;
-                    break;
-                  default:
-                    choice = scanner.nextLine().trim().toLowerCase();
-                    if (choice.equals("exit")) {
-                      System.out.println("Exiting...");
-                      socket.close();
-                      running = false;
-                      break;
-                    }
+                if (serverResponse == null) {
+                    System.out.println("Server closed the connection.");
                     break;
                 }
-                output.println(choice);
-                String serverOut = input.readLine();
-                System.out.println(serverOut);
-                if(serverOut.equals("Choose an option: 'login', 'signup', or 'exit'")){
-                  System.out.println(input.readLine());
+                System.out.println(serverResponse);
+                
+                switch (serverResponse) {
+                    case "Enter your username and password":
+                        System.out.print("Please enter your username: ");
+                        String username = scanner.nextLine().trim();
+                        System.out.print("Please enter your password: ");
+                        String password = scanner.nextLine().trim();
+                        choice = username + ":" + password;
+                        break;
+                    case "Login successful.":
+                        // You can handle post-login actions here if needed
+                        choice = "";
+                        break;
+                    case "Choose an option: 'login', 'signup', or 'exit'":
+                        // No additional action needed; loop will prompt for input
+                        choice = "";
+                        break;
+                    case "Goodbye!":
+                        running = false;
+                        choice = "";
+                        break;
+                    default:
+                        // For any other server messages, prompt the user for input
+                        System.out.print("Enter your choice: ");
+                        choice = scanner.nextLine().trim().toLowerCase();
+                        if (choice.equals("exit")) {
+                            System.out.println("Exiting...");
+                            socket.close();
+                            running = false;
+                            break;
+                        }
+                        break;
+                }
+
+                if (!choice.isEmpty()) {
+                    output.println(choice);
                 }
             }
 
             scanner.close();
-            socket.close();
+            if (!socket.isClosed()) {
+                socket.close();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
