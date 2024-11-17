@@ -1,8 +1,10 @@
-package src.PostDatabase;
+package src.TestCase;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import src.PostDatabase.Post;
+import src.PostDatabase.PostDatabase;
 
 import java.io.File;
 
@@ -10,7 +12,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-public class RunLocalTestNew {
+public class PostRunLocalTest {
     private static final String TEST_DB_FILE = "test_post_database.txt";
     private static PostDatabase postDatabase;
 

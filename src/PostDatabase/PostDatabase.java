@@ -1,6 +1,6 @@
 package src.PostDatabase;
 
-import src.PostDatabase.Interface.PostDatabaseInterface;
+import src.Interface.PostDatabaseInterface;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,10 +12,30 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+/**
+ * The PostDatabase class provides functionality to manage posts in a persistent storage.
+ * It implements the {@link src.Interface.PostDatabaseInterface} to support operations
+ * such as adding, retrieving, updating, deleting, and looking up posts.
+ *
+ * @author Tharun Kumar Senthilkumar and Mateo Toro Felipe
+ **/
 public class PostDatabase implements PostDatabaseInterface {
+    /**
+     * The file representing the database for storing posts.
+     */
     private final File dbFile;
+
+    /**
+     * A lock mechanism to ensure thread-safe read and write operations on the database.
+     */
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
+    /**
+     * Constructs a new PostDatabase object and initializes the database file.
+     * If the file does not exist, it creates a new file and initializes it with an empty post map.
+     *
+     * @param fileName The name of the file to use for storing posts.
+     */
     public PostDatabase(String fileName) {
         this.dbFile = new File(fileName);
         if (!dbFile.exists()) {
@@ -28,6 +48,12 @@ public class PostDatabase implements PostDatabaseInterface {
         }
     }
 
+    /**
+     * Adds a new post to the database.
+     *
+     * @param post The post to add.
+     * @return {@code true} if the post was successfully added, {@code false} otherwise.
+     */
     @Override
     public boolean addPost(Post post) {
         lock.writeLock().lock();
@@ -41,6 +67,12 @@ public class PostDatabase implements PostDatabaseInterface {
         }
     }
 
+    /**
+     * Retrieves a post from the database based on its title.
+     *
+     * @param title The title of the post to retrieve.
+     * @return The post corresponding to the given title, or {@code null} if no such post exists.
+     */
     @Override
     public Post getPost(String title) {
         lock.readLock().lock();
@@ -52,6 +84,12 @@ public class PostDatabase implements PostDatabaseInterface {
         }
     }
 
+    /**
+     * Loads all posts from the database.
+     *
+     * @return A map of posts where the key is the string representation of the post,
+     * and the value is the post object.
+     */
     @Override
     @SuppressWarnings("unchecked")
     public Map<String, Post> loadPosts() {
@@ -66,6 +104,11 @@ public class PostDatabase implements PostDatabaseInterface {
         }
     }
 
+    /**
+     * Saves a map of posts to the database.
+     *
+     * @param posts A map of posts to save.
+     */
     @Override
     public void savePosts(Map<String, Post> posts) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(dbFile))) {
@@ -75,6 +118,12 @@ public class PostDatabase implements PostDatabaseInterface {
         }
     }
 
+    /**
+     * Deletes a specified post from the database.
+     *
+     * @param post The post to delete.
+     * @return {@code true} if the post was successfully deleted, {@code false} otherwise.
+     */
     @Override
     public boolean deletePost(Post post) {
         lock.writeLock().lock();
@@ -89,6 +138,12 @@ public class PostDatabase implements PostDatabaseInterface {
         }
     }
 
+    /**
+     * Updates an existing post in the database.
+     *
+     * @param post The post with updated information.
+     * @return {@code true} if the post was successfully updated, {@code false} otherwise.
+     */
     @Override
     public boolean updatePost(Post post) {
         lock.writeLock().lock();
@@ -102,6 +157,12 @@ public class PostDatabase implements PostDatabaseInterface {
         }
     }
 
+    /**
+     * Looks up a post by its title in the database.
+     *
+     * @param title The title of the post to look up.
+     * @return The post corresponding to the given title, or {@code null} if no such post exists.
+     */
     @Override
     public Post lookUpPost(String title) {
         lock.readLock().lock();

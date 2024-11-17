@@ -1,6 +1,6 @@
 package src.PostDatabase;
 
-import src.PostDatabase.Interface.PostInterface;
+import src.Interface.PostInterface;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;

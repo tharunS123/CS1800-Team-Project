@@ -1,4 +1,4 @@
-package src.PostDatabase.Interface;
+package src.Interface;
 
 /**
  * The CommentInterface defines the essential functionality for managing a comment,

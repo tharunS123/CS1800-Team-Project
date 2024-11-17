@@ -1,5 +1,5 @@
 package src.UserDatabase;
-import src.UserDatabase.Interface.UserInterface;
+import src.Interface.UserInterface;
 
 import java.util.*;
 import java.io.*;

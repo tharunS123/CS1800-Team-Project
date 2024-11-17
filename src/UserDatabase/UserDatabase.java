@@ -3,7 +3,7 @@ package src.UserDatabase;
 /**import necessary packages (for read write operations and managing concurrent file handling
  * imported javax.swing.text.PasswordView used to hide characters while entering passwords
  */
-import src.UserDatabase.Interface.UserDatabaseInterface;
+import src.Interface.UserDatabaseInterface;
 
 import java.io.*;
 import java.util.*;

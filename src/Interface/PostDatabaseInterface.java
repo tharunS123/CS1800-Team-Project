@@ -1,4 +1,4 @@
-package src.PostDatabase.Interface;
+package src.Interface;
 
 import src.PostDatabase.Post;
 

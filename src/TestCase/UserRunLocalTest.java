@@ -1,6 +1,10 @@
-package src.UserDatabase;
+package src.TestCase;
 
 import org.junit.*;
+import src.UserDatabase.Tuple;
+import src.UserDatabase.User;
+import src.UserDatabase.UserDatabase;
+
 import static org.junit.Assert.*;
 import java.io.File;
 import java.util.List;
@@ -12,7 +16,7 @@ import java.util.List;
  * @author Abdullah and Eashan
  * @version Oct 31 2024
  */
-public class RunLocalTest {
+public class UserRunLocalTest {
 	/**
 	 * the name given to the test database file(.txt file),
 	 * so that the working database is not disturbed

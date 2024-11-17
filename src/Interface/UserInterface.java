@@ -1,4 +1,4 @@
-package src.UserDatabase.Interface;
+package src.Interface;
 
 import src.UserDatabase.Tuple;
 import src.UserDatabase.User;

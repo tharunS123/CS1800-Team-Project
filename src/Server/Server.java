@@ -1,19 +1,42 @@
 package src.Server;
 
+import src.Interface.ClientHandlerInterface;
+import src.Interface.ServerInterface;
+import src.PostDatabase.Post;
+import src.PostDatabase.PostDatabase;
 import src.UserDatabase.User;
 import src.UserDatabase.UserDatabase;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
 
-import java.io.*;
-import java.net.*;
+/**
+ * The Server class handles client-server communication for a multi-client application.
+ * It supports user authentication, post creation, and post viewing through an interactive console interface.
+ *
+ * @author Tharun Kumar Senthilkumar & Eashan
+ **/
+public class Server implements ServerInterface {
 
-public class Server {
-    private static UserDatabase userDatabase = new UserDatabase("user_database.txt");
+    /**
+     * The user database used for managing user credentials.
+     */
+    private static final UserDatabase userDatabase = new UserDatabase("user_database.txt");
 
-    public static void main(String[] args) {
+    /**
+     * The post database used for managing posts created by users.
+     */
+    private static final PostDatabase postDatabase = new PostDatabase("post_database.txt");
+
+    public static void main(String[] args) throws IOException {
         try {
             ServerSocket serverSocket = new ServerSocket(12345);
             System.out.println("Server is running and waiting for clients...");
             userDatabase.loadUsers();
+            postDatabase.loadPosts();
             while (true) {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("New client connected: " + clientSocket.getInetAddress());
@@ -24,34 +47,52 @@ public class Server {
         }
     }
 
-    private static class ClientHandler extends Thread {
+    /**
+     * The ClientHandler class handles the interaction with an individual client.
+     * Each client connection is processed in a separate thread.
+     *
+     * @author Tharun Kumar Senthilkumar & Eashan
+     */
+    private static class ClientHandler extends Thread implements ClientHandlerInterface {
         private Socket clientSocket;
         private boolean loggedIn = false;
         private User currentUser;
 
+        /**
+         * Constructs a new ClientHandler for a given client socket.
+         *
+         * @param socket The socket connected to the client.
+         */
         public ClientHandler(Socket socket) {
             this.clientSocket = socket;
         }
 
+        /**
+         * The main logic for handling client requests. Processes user authentication, post creation,
+         * and other client actions based on the user's login state.
+         */
+        @Override
         public void run() {
             try (
-                BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                PrintWriter output = new PrintWriter(clientSocket.getOutputStream(), true);
+                    BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                    PrintWriter output = new PrintWriter(clientSocket.getOutputStream(), true);
             ) {
                 while (true) {
                     if (loggedIn) {
-                        output.println("You are logged in. Choose an option: 'create post', 'view posts', 'logout & exit'");
+                        output.println("You are logged in. Choose an option: 'create post', 'view posts', 'logout'");
                         String choice = input.readLine();
                         if (choice == null || choice.trim().isEmpty()) continue;
 
                         switch (choice.toLowerCase()) {
                             case "create post":
                                 output.println("Post creation functionality not implemented.");
+                                handleCreatePost(input, output);
                                 break;
                             case "view posts":
                                 output.println("View posts functionality not implemented.");
+                                handleViewPosts(input, output);
                                 break;
-                            case "logout & exit":
+                            case "logout":
                                 loggedIn = false;
                                 currentUser = null;
                                 output.println("Logged out. Returning to main menu.");
@@ -92,7 +133,15 @@ public class Server {
             }
         }
 
-        private void handleLogin(BufferedReader input, PrintWriter output) throws IOException {
+        /**
+         * Handles user login by verifying credentials against the user database.
+         *
+         * @param input  The {@link BufferedReader} to read client input.
+         * @param output The {@link PrintWriter} to send responses to the client.
+         * @throws IOException if an I/O error occurs while reading or writing data.
+         */
+        @Override
+        public void handleLogin(BufferedReader input, PrintWriter output) throws IOException {
             output.println("Enter your username and password");
             String credentials = input.readLine();
             if (credentials == null) {
@@ -108,7 +157,7 @@ public class Server {
                 if (user != null && user.getPassword().equals(password)) {
                     loggedIn = true;
                     currentUser = user;
-                    output.println("Login successful.");
+                    output.println("Login successful. Welcome, " + currentUser.getUsername() + "!");
                 } else {
                     output.println("Invalid username or password.");
                 }
@@ -117,7 +166,15 @@ public class Server {
             }
         }
 
-        private void handleSignup(BufferedReader input, PrintWriter output) throws IOException {
+        /**
+         * Handles user signup by creating a new account in the user database.
+         *
+         * @param input  The {@link BufferedReader} to read client input.
+         * @param output The {@link PrintWriter} to send responses to the client.
+         * @throws IOException if an I/O error occurs while reading or writing data.
+         */
+        @Override
+        public void handleSignup(BufferedReader input, PrintWriter output) throws IOException {
             output.println("Enter your username and password");
             String credentials = input.readLine();
             if (credentials == null) {
@@ -139,6 +196,49 @@ public class Server {
                 output.println("Invalid input format.");
             }
         }
+
+        /**
+         * Handles the creation of new posts by logged-in users.
+         *
+         * @param input  The {@link BufferedReader} to read client input.
+         * @param output The {@link PrintWriter} to send responses to the client.
+         * @throws IOException if an I/O error occurs while reading or writing data.
+         */
+        @Override
+        public void handleCreatePost(BufferedReader input, PrintWriter output) throws IOException {
+            output.println("Enter your post content");
+            String credentials = input.readLine();
+            if (credentials == null) {
+                output.println("Invalid input format.");
+                return;
+            }
+
+            String[] parts = credentials.split(":");
+            if (parts.length == 2) {
+                String title = parts[0].trim();
+                String content = parts[1].trim();
+                String author = currentUser.getUsername();
+                Post newPost = new Post(title, content, author);
+                if (postDatabase.addPost(newPost)) {
+                    output.println("Post created. You can now view posts.");
+                } else {
+                    output.println("Post creation failed. Try again.");
+                }
+            } else {
+                output.println("Invalid input format.");
+            }
+        }
+
+        /**
+         * Handles the viewing of posts. Currently not implemented.
+         *
+         * @param input  The {@link BufferedReader} to read client input.
+         * @param output The {@link PrintWriter} to send responses to the client.
+         * @throws IOException if an I/O error occurs while reading or writing data.
+         */
+        @Override
+        public void handleViewPosts(BufferedReader input, PrintWriter output) throws IOException {
+            output.println("not yet implemented");
+        }
     }
 }
-
