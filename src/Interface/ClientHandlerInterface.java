@@ -12,39 +12,55 @@ import java.io.PrintWriter;
  */
 public interface ClientHandlerInterface {
     /**
-     * this run method is used to run the client handler.
+     * The main entry point for handling the client. This method is responsible for managing
+     * the overall lifecycle of the client connection, including communication and processing
+     * of requests.
      */
     void run();
 
     /**
-     * This method is used to handle the login of the user.
-     * @param input
-     * @param output
-     * @throws IOException
+     * Handles the communication and logic for interacting with the client.
+     * This method should implement the specific actions for different client commands such as login,
+     * register, create post, etc.
      */
-    void handleLogin(BufferedReader input, PrintWriter output) throws IOException;
+    void handleClient();
 
     /**
-     * This method is used to handle the signup of the user.
-     * @param input
-     * @param output
-     * @throws IOException
+     * Handles the login process for the client. It should prompt for a username and password,
+     * validate the credentials, and return a response indicating whether the login was successful.
      */
-    void handleSignup(BufferedReader input, PrintWriter output) throws IOException;
+    void login();
 
     /**
-     * This method is used to handle the create post of the user.
-     * @param input
-     * @param output
-     * @throws IOException
+     * Handles the registration process for the client. It should prompt for a username and password,
+     * create a new user if the username is available, and return an appropriate success or failure response.
      */
-    void handleCreatePost(BufferedReader input, PrintWriter output) throws IOException;
+    void register();
 
     /**
-     * This method is used to handle the view posts of the user.
-     * @param input
-     * @param output
-     * @throws IOException
+     * Allows the logged-in user to create a new post. It should prompt for post details such as title
+     * and content, validate the post, and store it in the appropriate database or collection.
      */
-    void handleViewPosts(BufferedReader input, PrintWriter output) throws IOException;
+    void createPost();
+
+    /**
+     * Displays all posts available in the system. It should fetch the posts from the database or collection
+     * and send them to the client.
+     */
+    void viewPosts();
+
+    /**
+     * Logs the current user out of the system. This should clear any session-related data for the user
+     * and send a response to the client indicating successful logout.
+     */
+    void logout();
+
+    /**
+     * Reads a line of input from the client. This method abstracts reading input, ensuring that the client
+     * can provide input during interactions such as login, registration, and post creation.
+     *
+     * @return the line of text entered by the client
+     * @throws IOException if an input error occurs
+     */
+    String readLine();
 }
