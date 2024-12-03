@@ -133,6 +133,41 @@ public class Server implements ServerInterface {
             }
         }
 
+        @Override
+        public void handleClient() {
+
+        }
+
+        @Override
+        public void login() {
+
+        }
+
+        @Override
+        public void register() {
+
+        }
+
+        @Override
+        public void createPost() {
+
+        }
+
+        @Override
+        public void viewPosts() {
+
+        }
+
+        @Override
+        public void logout() {
+
+        }
+
+        @Override
+        public String readLine() {
+            return "";
+        }
+
         /**
          * Handles user login by verifying credentials against the user database.
          *
@@ -140,7 +175,6 @@ public class Server implements ServerInterface {
          * @param output The {@link PrintWriter} to send responses to the client.
          * @throws IOException if an I/O error occurs while reading or writing data.
          */
-        @Override
         public void handleLogin(BufferedReader input, PrintWriter output) throws IOException {
             output.println("Enter your username and password");
             String credentials = input.readLine();
@@ -173,7 +207,6 @@ public class Server implements ServerInterface {
          * @param output The {@link PrintWriter} to send responses to the client.
          * @throws IOException if an I/O error occurs while reading or writing data.
          */
-        @Override
         public void handleSignup(BufferedReader input, PrintWriter output) throws IOException {
             output.println("Enter your username and password");
             String credentials = input.readLine();
@@ -204,7 +237,6 @@ public class Server implements ServerInterface {
          * @param output The {@link PrintWriter} to send responses to the client.
          * @throws IOException if an I/O error occurs while reading or writing data.
          */
-        @Override
         public void handleCreatePost(BufferedReader input, PrintWriter output) throws IOException {
             output.println("Enter your post content");
             String credentials = input.readLine();
@@ -236,7 +268,6 @@ public class Server implements ServerInterface {
          * @param output The {@link PrintWriter} to send responses to the client.
          * @throws IOException if an I/O error occurs while reading or writing data.
          */
-        @Override
         public void handleViewPosts(BufferedReader input, PrintWriter output) throws IOException {
             output.println("not yet implemented");
         }
