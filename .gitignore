@@ -12,6 +12,7 @@
 /out
 
 .DS_store
+./database.dat
 
 *.txt
 

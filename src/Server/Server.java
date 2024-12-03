@@ -17,6 +17,7 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * A class representing the backend server-side of our application.
@@ -27,7 +28,7 @@ import java.util.ArrayList;
  */
 public class Server implements Runnable, ServerInterface {
     Socket socket;
-    public static ArrayList<User> userArrayList;
+    public static HashMap<String, User> userList;
     public static File fileName;
 
     /**
@@ -41,7 +42,7 @@ public class Server implements Runnable, ServerInterface {
 
     public static void main(String[] args) {
         //Initialize an arraylist to store all user data.
-        userArrayList = new ArrayList<>();
+        userList = new HashMap<String, User>();
         fileName = new File("database.dat");
         /*
          * If there is no such date file, a file would be created
@@ -57,7 +58,8 @@ public class Server implements Runnable, ServerInterface {
             try (ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(fileName))) {
                 Object readObject = objectInputStream.readObject();
                 while (readObject != null) {
-                    userArrayList.add((User) readObject);
+                    User u = (User) readObject;
+                    userList.put(u.getName(), u);
                     readObject = objectInputStream.readObject();
                 }
                 /* Catch EOF exception which indicates that the objectInputStream has reached an end.
@@ -96,18 +98,31 @@ public class Server implements Runnable, ServerInterface {
      */
     @Override
     public synchronized boolean login(String username, String password) {
-        boolean hasAccount = false;
-        if (userArrayList.isEmpty()) {
+      System.out.println("Attempting to log " + username + " in..." );
+      for(User u : userList.values()){
+        System.out.println(u.getName() +"," + u.getPassword() + userList.containsKey(username));
+      }
+        if (userList.isEmpty()) {
+          System.out.println("User List is empty");
             return false;
         } else {
-            for (User user : userArrayList) {
-                if (user.getUserId().equals(username)
-                        && user.getPassword().equals(password)) {
-                    hasAccount = true;
-                    break;
-                }
+            // for (User user : userList) {
+            //     if (user.getUserId().equals(username)
+            //             && user.getPassword().equals(password)) {
+            //         System.out.println(username + " logged in @ address: " + socket.getInetAddress());
+            //         hasAccount = true;
+            //         break;
+            //     }
+            // }
+            if(userList.containsKey(username)){
+              System.out.println("valid username");
+              User user = userList.get(username);
+              if(user.getPassword().equals(password)){
+                System.out.println(username + " logged in @ address: " + socket.getInetAddress());
+                return true;
+              }
             }
-            return hasAccount;
+            return false;
         }
     }
 
@@ -120,12 +135,7 @@ public class Server implements Runnable, ServerInterface {
      */
     @Override
     public synchronized Profile getProfile(String userId) {
-        Profile profile = null;
-        for (User user : userArrayList) {
-            if (user.getUserId().equals(userId)) {
-                profile = user.getUserProfile();
-            }
-        }
+        Profile profile = userList.get(userId).getUserProfile();
         return profile;
     }
 
@@ -139,14 +149,20 @@ public class Server implements Runnable, ServerInterface {
      */
     @Override
     public synchronized boolean setUserProfile(Profile userProfile, String userId) {
-        boolean success = false;
-        for (User user : userArrayList) {
-            if (user.getUserId().equals(userId)) {
-                user.setUserProfile(userProfile);
-                success = true;
-            }
+        // boolean success = false;
+        // for (User user : userList) {
+        //     if (user.getUserId().equals(userId)) {
+        //         user.setUserProfile(userProfile);
+        //         success = true;
+        //     }
+        // }
+        // return success;
+        User user = userList.get(userId);
+        if(user == null){
+          return false;
         }
-        return success;
+        user.setUserProfile(userProfile);
+        return true;
     }
 
     /**
@@ -162,18 +178,16 @@ public class Server implements Runnable, ServerInterface {
      */
     @Override
     public synchronized String requestFriend(String ownId, String friendId) {
-        User own = null;
-        User friend = null;
-        for (User user : userArrayList) {
-            if (user.getUserId().equals(ownId)) {
-                own = user;
-            } else if (user.getUserId().equals(friendId)) {
-                friend = user;
-            }
-            if (own != null && friend != null) {
-                break;
-            }
-        }
+        User own = userList.get(ownId);
+        User friend = userList.get(friendId);
+        // for (User user : userList.values()) {
+        //     if (user.getUserId().equals(friendId)) {
+        //         friend = user;
+        //     }
+        //     if (own != null && friend != null) {
+        //         break;
+        //     }
+        // }
         if (own != null && friend != null) {
             if (own.getFriendList().contains(friend) && friend.getFriendList().contains(own)) {
                 return "Already friend!";
@@ -201,19 +215,19 @@ public class Server implements Runnable, ServerInterface {
      */
     @Override
     public synchronized boolean deleteFriend(String ownId, String friendId) {
-        User ownUser = null;
-        User friendUser = null;
-        for (User user : userArrayList) {
-            if (user.getUserId().equals(ownId)) {
-                ownUser = user;
-            }
-            if (user.getUserId().equals(friendId)) {
-                friendUser = user;
-            }
-            if (ownUser != null && friendUser != null) {
-                break;
-            }
-        }
+        User ownUser = userList.get(ownId);
+        User friendUser = userList.get(friendId);
+        // for (User user : userList) {
+        //     if (user.getUserId().equals(ownId)) {
+        //         ownUser = user;
+        //     }
+        //     if (user.getUserId().equals(friendId)) {
+        //         friendUser = user;
+        //     }
+        //     if (ownUser != null && friendUser != null) {
+        //         break;
+        //     }
+        // }
         if (ownUser == null || friendUser == null) {
             return false;
         }
@@ -231,11 +245,11 @@ public class Server implements Runnable, ServerInterface {
      */
     @Override
     public synchronized boolean uniquePhoneNoCheck(String phoneNumber) {
-        if (userArrayList.isEmpty()) {
+        if (userList.isEmpty()) {
             return true;
         }
         boolean unique = true;
-        for (User user : userArrayList) {
+        for (User user : userList.values()) {
             if (user.getUserProfile().getPhoneNumber().equals(phoneNumber)) {
                 unique = false;
                 break;
@@ -253,11 +267,11 @@ public class Server implements Runnable, ServerInterface {
      */
     @Override
     public synchronized boolean uniqueIdCheck(String userId) {
-        if (userArrayList.isEmpty()) {
+        if (userList.isEmpty()) {
             return true;
         }
         boolean unique = true;
-        for (User user : userArrayList) {
+        for (User user : userList.values()) {
             if (user.getUserId().equals(userId)) {
                 unique = false;
                 break;
@@ -280,18 +294,18 @@ public class Server implements Runnable, ServerInterface {
      */
     @Override
     public synchronized String acceptFriend(String ownId, String friendId) {
-        User own = null;
-        User friend = null;
-        for (User user : userArrayList) {
-            if (user.getUserId().equals(ownId)) {
-                own = user;
-            } else if (user.getUserId().equals(friendId)) {
-                friend = user;
-            }
-            if (own != null && friend != null) {
-                break;
-            }
-        }
+        User own = userList.get(ownId);
+        User friend = userList.get(friendId);
+        // for (User user : userList) {
+        //     if (user.getUserId().equals(ownId)) {
+        //         own = user;
+        //     } else if (user.getUserId().equals(friendId)) {
+        //         friend = user;
+        //     }
+        //     if (own != null && friend != null) {
+        //         break;
+        //     }
+        // }
         if (own != null && friend != null) {
             if (own.getPendingList().contains(friend) && friend.getRequestList().contains(own)) {
                 own.getFriendList().add(friend);
@@ -320,18 +334,18 @@ public class Server implements Runnable, ServerInterface {
      */
     @Override
     public synchronized String denyFriend(String ownId, String friendId) {
-        User own = null;
-        User friend = null;
-        for (User user : userArrayList) {
-            if (user.getUserId().equals(ownId)) {
-                own = user;
-            } else if (user.getUserId().equals(friendId)) {
-                friend = user;
-            }
-            if (own != null && friend != null) {
-                break;
-            }
-        }
+        User own = userList.get(ownId);
+        User friend = userList.get(friendId);
+        // for (User user : userList) {
+        //     if (user.getUserId().equals(ownId)) {
+        //         own = user;
+        //     } else if (user.getUserId().equals(friendId)) {
+        //         friend = user;
+        //     }
+        //     if (own != null && friend != null) {
+        //         break;
+        //     }
+        // }
         if (own != null && friend != null) {
             if (own.getPendingList().contains(friend) && friend.getRequestList().contains(own)) {
                 own.getPendingList().remove(friend);
@@ -358,18 +372,18 @@ public class Server implements Runnable, ServerInterface {
      */
     @Override
     public synchronized String resendRequest(String ownId, String friendId) {
-        User own = null;
-        User friend = null;
-        for (User user : userArrayList) {
-            if (user.getUserId().equals(ownId)) {
-                own = user;
-            } else if (user.getUserId().equals(friendId)) {
-                friend = user;
-            }
-            if (own != null && friend != null) {
-                break;
-            }
-        }
+        User own = userList.get(ownId);
+        User friend = userList.get(friendId);
+        // for (User user : userList) {
+        //     if (user.getUserId().equals(ownId)) {
+        //         own = user;
+        //     } else if (user.getUserId().equals(friendId)) {
+        //         friend = user;
+        //     }
+        //     if (own != null && friend != null) {
+        //         break;
+        //     }
+        // }
         if (own != null && friend != null) {
             if (friend.getPendingList().contains(own) && own.getRequestList().contains(friend)) {
                 return "RequestExisted";
@@ -403,10 +417,10 @@ public class Server implements Runnable, ServerInterface {
                     printWriter.close();
                     bufferedReader.close();
                     socket.close();
-                    // Save the data into the data file if userArrayList is not empty
-                    if (!userArrayList.isEmpty()) {
+                    // Save the data into the data file if userList is not empty
+                    if (!userList.isEmpty()) {
                         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(fileName))) {
-                            for (User user : userArrayList) {
+                            for (User user : userList.values()) {
                                 objectOutputStream.writeObject(user);
                             }
                         } catch (IOException e) {
@@ -431,8 +445,8 @@ public class Server implements Runnable, ServerInterface {
                         //The User would send the user account info in a string
                         String newUser = bufferedReader.readLine();
                         String[] splitNewUser = newUser.split(", ");
-                        userArrayList.add(new User(splitNewUser[0], splitNewUser[1],
-                                splitNewUser[2], splitNewUser[3]));
+                        User tmpNewUser = new User(splitNewUser[0], splitNewUser[1], splitNewUser[2], splitNewUser[3] );
+                        userList.put(splitNewUser[0], tmpNewUser);
                         printWriter.println("Success");
                         printWriter.flush();
                     }
@@ -479,20 +493,24 @@ public class Server implements Runnable, ServerInterface {
                         String userId = bufferedReader.readLine();
                         ArrayList<User> currentFriendList = null;
                         boolean found = false;
-                        for (User user : userArrayList) {
-                            if (user.getUserId().equals(userId)) {
-                                currentFriendList = user.getFriendList();
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (found) {
+                        // for (User user : userList) {
+                        //     if (user.getUserId().equals(userId)) {
+                        //         currentFriendList = user.getFriendList();
+                        //         found = true;
+                        //         break;
+                        //     }
+                        // }
+                        User u = userList.get(userId);
+                        if (u != null) {
+                          currentFriendList = u.getFriendList();
                             if (!currentFriendList.isEmpty()) {
                                 printWriter.println(currentFriendList.size());
                                 for (User user : currentFriendList) {
-                                    printWriter.println(user.getName());
-                                    printWriter.println(user.getUserId());
-                                    printWriter.println(user.getUserProfile().getAboutMe());
+                                    String print = user.getName() + '\n' + user.getUserId() + '\n' + user.getUserProfile().getAboutMe();
+                                    printWriter.println(print);
+                                    // printWriter.println(user.getName());
+                                    // printWriter.println(user.getUserId());
+                                    // printWriter.println(user.getUserProfile().getAboutMe());
                                 }
                             } else {
                                 printWriter.println("Empty");
@@ -504,13 +522,13 @@ public class Server implements Runnable, ServerInterface {
                     }
                     case "EditOwnAccount" -> {
                         String userEdit = bufferedReader.readLine();
-                        User targetUser = null;
                         String[] splitUserEdit = userEdit.split(", ");
-                        for (User user : userArrayList) {
-                            if (user.getUserId().equals(splitUserEdit[0])) {
-                                targetUser = user;
-                            }
-                        }
+                        User targetUser = userList.get(splitUserEdit);
+                        // for (User user : userList.values()) {
+                        //     if (user.getUserId().equals(splitUserEdit[0])) {
+                        //         targetUser = user;
+                        //     }
+                        // }
                         if (targetUser != null) {
                             targetUser.setPassword(splitUserEdit[1]);
                             targetUser.setName(splitUserEdit[2]);
@@ -522,21 +540,22 @@ public class Server implements Runnable, ServerInterface {
                         printWriter.flush();
                     }
                     case "DeleteOwnAccount" -> {
-                        boolean flag = false;
                         String userId = bufferedReader.readLine();
-                        User deletedUser = null;
-                        for (User user : userArrayList) {
-                            if (user.getUserId().equals(userId)) {
-                                flag = true;
-                                deletedUser = user;
-                                userArrayList.remove(user);
-                                break;
-                            }
-                        }
-                        if (!flag) {
+                        User deletedUser = userList.get(userId);
+                        ArrayList<User> deletedUserFriendList = deletedUser.getFriendList();
+                        // for (User user : userList.values()) {
+                        //     if (user.getUserId().equals(userId)) {
+                        //         flag = true;
+                        //         deletedUser = user;
+                        //         userList.remove(user.getUsername());
+                        //         break;
+                        //     }
+                        // }
+                        if (deletedUser == null) {
                             printWriter.println("Failure");
                         } else {
-                            for (User user : userArrayList) {
+                          userList.remove(deletedUser.getName());
+                            for (User user : deletedUserFriendList) {
                                 user.getRequestList().remove(deletedUser);
                                 user.getPendingList().remove(deletedUser);
                                 user.getFriendList().remove(deletedUser);
@@ -547,9 +566,9 @@ public class Server implements Runnable, ServerInterface {
                     }
                     case "GetUserList" -> {
                         String userId = bufferedReader.readLine();
-                        if (userArrayList.size() > 1) {
-                            printWriter.println(userArrayList.size() - 1);
-                            for (User user : userArrayList) {
+                        if (userList.size() > 1) {
+                            printWriter.println(userList.size() - 1);
+                            for (User user : userList.values()) {
                                 if (!user.getUserId().equals(userId)) {
                                     printWriter.println(user.getName());
                                     printWriter.println(user.getUserId());
@@ -563,16 +582,17 @@ public class Server implements Runnable, ServerInterface {
                     }
                     case "GetPendingList" -> {
                         String userId = bufferedReader.readLine();
-                        boolean found = false;
-                        User ownUser = null;
-                        for (User user : userArrayList) {
-                            if (user.getUserId().equals(userId)) {
-                                ownUser = user;
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (found) {
+                        // boolean found = false;
+                        // User ownUser = null;
+                        // for (User user : userList) {
+                        //     if (user.getUserId().equals(userId)) {
+                        //         ownUser = user;
+                        //         found = true;
+                        //         break;
+                        //     }
+                        // }
+                        User ownUser = userList.get(userId);
+                        if (ownUser != null) {
                             if (!ownUser.getPendingList().isEmpty()) {
                                 printWriter.println(ownUser.getPendingList().size());
                                 for (User user : ownUser.getPendingList()) {
@@ -590,16 +610,17 @@ public class Server implements Runnable, ServerInterface {
                     }
                     case "GetRequestList" -> {
                         String userId = bufferedReader.readLine();
-                        boolean found = false;
-                        User ownUser = null;
-                        for (User user : userArrayList) {
-                            if (user.getUserId().equals(userId)) {
-                                ownUser = user;
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (found) {
+                        // boolean found = false;
+                        // User ownUser = null;
+                        // for (User user : userList) {
+                        //     if (user.getUserId().equals(userId)) {
+                        //         ownUser = user;
+                        //         found = true;
+                        //         break;
+                        //     }
+                        // }
+                        User ownUser = userList.get(userId);
+                        if (ownUser != null) {
                             if (!ownUser.getRequestList().isEmpty()) {
                                 printWriter.println(ownUser.getRequestList().size());
                                 for (User user : ownUser.getRequestList()) {
