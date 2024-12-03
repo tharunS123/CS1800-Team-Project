@@ -98,32 +98,16 @@ public class Server implements Runnable, ServerInterface {
      */
     @Override
     public synchronized boolean login(String username, String password) {
-      System.out.println("Attempting to log " + username + " in..." );
-      for(User u : userList.values()){
-        System.out.println(u.getName() +"," + u.getPassword() + userList.containsKey(username));
-      }
-        if (userList.isEmpty()) {
-          System.out.println("User List is empty");
-            return false;
-        } else {
-            // for (User user : userList) {
-            //     if (user.getUserId().equals(username)
-            //             && user.getPassword().equals(password)) {
-            //         System.out.println(username + " logged in @ address: " + socket.getInetAddress());
-            //         hasAccount = true;
-            //         break;
-            //     }
-            // }
-            if(userList.containsKey(username)){
-              System.out.println("valid username");
-              User user = userList.get(username);
-              if(user.getPassword().equals(password)){
-                System.out.println(username + " logged in @ address: " + socket.getInetAddress());
-                return true;
-              }
+        if (!userList.isEmpty()) {
+          if(userList.containsKey(username)){
+            User user = userList.get(username);
+            if(user.getPassword().equals(password)){
+              System.out.println(username + " logged in @ address: " + socket.getInetAddress());
+              return true;
             }
-            return false;
+          }
         }
+        return false;
     }
 
     /**
@@ -135,8 +119,7 @@ public class Server implements Runnable, ServerInterface {
      */
     @Override
     public synchronized Profile getProfile(String userId) {
-        Profile profile = userList.get(userId).getUserProfile();
-        return profile;
+        return userList.get(userId).getUserProfile();
     }
 
     /**
@@ -149,18 +132,8 @@ public class Server implements Runnable, ServerInterface {
      */
     @Override
     public synchronized boolean setUserProfile(Profile userProfile, String userId) {
-        // boolean success = false;
-        // for (User user : userList) {
-        //     if (user.getUserId().equals(userId)) {
-        //         user.setUserProfile(userProfile);
-        //         success = true;
-        //     }
-        // }
-        // return success;
         User user = userList.get(userId);
-        if(user == null){
-          return false;
-        }
+        if(user == null) return false;
         user.setUserProfile(userProfile);
         return true;
     }
@@ -169,25 +142,17 @@ public class Server implements Runnable, ServerInterface {
      * requestFriend method
      * Sends out a friend request to the receiver using userId as a guide
      *
-     * @param ownId id of the requester
-     * @param friendId id of the user that the requester want to request
+     * @param self id of the requester
+     * @param friend id of the user that the requester want to request
      * @return "RequestSuccess" if the success;
      *         "Already friend!" if in each other 's friendList;
      *         "Already requested!" if requested user in requester 's requested list;
      *         "Already being requested!" if the requested user has already sent a request to requester;
      */
     @Override
-    public synchronized String requestFriend(String ownId, String friendId) {
-        User own = userList.get(ownId);
-        User friend = userList.get(friendId);
-        // for (User user : userList.values()) {
-        //     if (user.getUserId().equals(friendId)) {
-        //         friend = user;
-        //     }
-        //     if (own != null && friend != null) {
-        //         break;
-        //     }
-        // }
+    public synchronized String requestFriend(String self, String friend) {
+        User own = userList.get(self);
+        User friend = userList.get(friend);
         if (own != null && friend != null) {
             if (own.getFriendList().contains(friend) && friend.getFriendList().contains(own)) {
                 return "Already friend!";
@@ -209,30 +174,17 @@ public class Server implements Runnable, ServerInterface {
      * deleteFriend method
      * Delete the friend in user's friendList and vice versa for the friend who got deleted.
      *
-     * @param ownId the id of the deleter
-     * @param friendId the id of the friend that deleter want to delete
+     * @param self the id of the deleter
+     * @param friend the id of the friend that deleter want to delete
      * @return True if the deletion is success; False if no existence
      */
     @Override
-    public synchronized boolean deleteFriend(String ownId, String friendId) {
-        User ownUser = userList.get(ownId);
-        User friendUser = userList.get(friendId);
-        // for (User user : userList) {
-        //     if (user.getUserId().equals(ownId)) {
-        //         ownUser = user;
-        //     }
-        //     if (user.getUserId().equals(friendId)) {
-        //         friendUser = user;
-        //     }
-        //     if (ownUser != null && friendUser != null) {
-        //         break;
-        //     }
-        // }
-        if (ownUser == null || friendUser == null) {
-            return false;
-        }
-        boolean existInOwn = ownUser.getFriendList().removeIf(user -> user.getUserId().equals(friendId));
-        boolean existInFriend = friendUser.getFriendList().removeIf(user -> user.getUserId().equals(ownId));
+    public synchronized boolean deleteFriend(String self, String friend) {
+        User ownUser = userList.get(self);
+        User friendUser = userList.get(friend);
+        if (ownUser == null || friendUser == null) return false;
+        boolean existInOwn = ownUser.getFriendList().removeIf(user -> user.getUserId().equals(friend));
+        boolean existInFriend = friendUser.getFriendList().removeIf(user -> user.getUserId().equals(self));
         return (existInOwn && existInFriend);
     }
 
@@ -286,26 +238,16 @@ public class Server implements Runnable, ServerInterface {
      * add to each other's friendList
      * delete history in pending and requested list
      *
-     * @param ownId the id of the user who accept the request
-     * @param friendId the id of the user who sent the request
+     * @param self the id of the user who accept the request
+     * @param friend the id of the user who sent the request
      * @return "AcceptSuccess" if there is an request and are accepted successfully
      *         "No request found" if there are no request
-     *         "No such user found" if can not find the user of either ownId or friendId
+     *         "No such user found" if can not find the user of either self or friend
      */
     @Override
-    public synchronized String acceptFriend(String ownId, String friendId) {
-        User own = userList.get(ownId);
-        User friend = userList.get(friendId);
-        // for (User user : userList) {
-        //     if (user.getUserId().equals(ownId)) {
-        //         own = user;
-        //     } else if (user.getUserId().equals(friendId)) {
-        //         friend = user;
-        //     }
-        //     if (own != null && friend != null) {
-        //         break;
-        //     }
-        // }
+    public synchronized String acceptFriend(String self, String friend) {
+        User own = userList.get(self);
+        User friend = userList.get(friend);
         if (own != null && friend != null) {
             if (own.getPendingList().contains(friend) && friend.getRequestList().contains(own)) {
                 own.getFriendList().add(friend);
@@ -326,26 +268,16 @@ public class Server implements Runnable, ServerInterface {
      * deny the request in pending list
      * delete history in pending and requested list
      *
-     * @param ownId the id of the user who deny the request
-     * @param friendId the id of the user who sent the request
+     * @param self the id of the user who deny the request
+     * @param friend the id of the user who sent the request
      * @return "DenySuccess" if there is an request and deny successfully
      *         "No request found" if there are no request
-     *         "No such user found" if can not find the user of either ownId or friendId
+     *         "No such user found" if can not find the user of either self or friend
      */
     @Override
-    public synchronized String denyFriend(String ownId, String friendId) {
-        User own = userList.get(ownId);
-        User friend = userList.get(friendId);
-        // for (User user : userList) {
-        //     if (user.getUserId().equals(ownId)) {
-        //         own = user;
-        //     } else if (user.getUserId().equals(friendId)) {
-        //         friend = user;
-        //     }
-        //     if (own != null && friend != null) {
-        //         break;
-        //     }
-        // }
+    public synchronized String denyFriend(String self, String friend) {
+        User own = userList.get(self);
+        User friend = userList.get(friend);
         if (own != null && friend != null) {
             if (own.getPendingList().contains(friend) && friend.getRequestList().contains(own)) {
                 own.getPendingList().remove(friend);
@@ -364,26 +296,16 @@ public class Server implements Runnable, ServerInterface {
      * check if the request has been sent
      * if not resend request, if sent, ask the user to be more patient
      *
-     * @param ownId the login user
-     * @param friendId the user who have been requested
+     * @param self the login user
+     * @param friend the user who have been requested
      * @return "RequestExisted" if the request is in the user's pending list
      *         "ResendSuccess" if there is no request and the request is resend
-     *         "No such user found" if can not find user of either ownId or friendId
+     *         "No such user found" if can not find user of either self or friend
      */
     @Override
-    public synchronized String resendRequest(String ownId, String friendId) {
-        User own = userList.get(ownId);
-        User friend = userList.get(friendId);
-        // for (User user : userList) {
-        //     if (user.getUserId().equals(ownId)) {
-        //         own = user;
-        //     } else if (user.getUserId().equals(friendId)) {
-        //         friend = user;
-        //     }
-        //     if (own != null && friend != null) {
-        //         break;
-        //     }
-        // }
+    public synchronized String resendRequest(String self, String friend) {
+        User own = userList.get(self);
+        User friend = userList.get(friend);
         if (own != null && friend != null) {
             if (friend.getPendingList().contains(own) && own.getRequestList().contains(friend)) {
                 return "RequestExisted";
@@ -451,55 +373,45 @@ public class Server implements Runnable, ServerInterface {
                         printWriter.flush();
                     }
                     case "AcceptFriend" -> {
-                        String ownId = bufferedReader.readLine();
-                        String friendId = bufferedReader.readLine();
-                        String result = acceptFriend(ownId, friendId);
+                        String self = bufferedReader.readLine();
+                        String friend = bufferedReader.readLine();
+                        String result = acceptFriend(self, friend);
                         printWriter.println(result);
                         printWriter.flush();
                     }
                     case "DenyFriend" -> {
-                        String ownId = bufferedReader.readLine();
-                        String friendId = bufferedReader.readLine();
-                        String result = denyFriend(ownId, friendId);
+                        String self = bufferedReader.readLine();
+                        String friend = bufferedReader.readLine();
+                        String result = denyFriend(self, friend);
                         printWriter.println(result);
                         printWriter.flush();
                     }
                     case "RequestFriend" -> {
-                        String ownId = bufferedReader.readLine();
-                        String friendId = bufferedReader.readLine();
-                        String result = requestFriend(ownId, friendId);
+                        String self = bufferedReader.readLine();
+                        String friend = bufferedReader.readLine();
+                        String result = requestFriend(self, friend);
                         printWriter.println(result);
                         printWriter.flush();
                     }
                     case "ResendRequest" -> {
-                        String ownId = bufferedReader.readLine();
-                        String friendId = bufferedReader.readLine();
-                        String result = resendRequest(ownId, friendId);
+                        String self = bufferedReader.readLine();
+                        String friend = bufferedReader.readLine();
+                        String result = resendRequest(self, friend);
                         printWriter.println(result);
                         printWriter.flush();
                     }
                     case "DeleteFriend" -> {
-                        String ownId = bufferedReader.readLine();
-                        String friendId = bufferedReader.readLine();
-                        boolean success = deleteFriend(ownId, friendId);
-                        if (success) {
-                            printWriter.println("Success");
-                        } else {
-                            printWriter.println("Failure");
-                        }
+                        String self = bufferedReader.readLine();
+                        String friend = bufferedReader.readLine();
+                        boolean success = deleteFriend(self, friend);
+                        String successString = success ? "Success" : "Failure";
+                        printWriter.println(successString);
                         printWriter.flush();
                     }
                     case "GetFriendList" -> {
                         String userId = bufferedReader.readLine();
                         ArrayList<User> currentFriendList = null;
                         boolean found = false;
-                        // for (User user : userList) {
-                        //     if (user.getUserId().equals(userId)) {
-                        //         currentFriendList = user.getFriendList();
-                        //         found = true;
-                        //         break;
-                        //     }
-                        // }
                         User u = userList.get(userId);
                         if (u != null) {
                           currentFriendList = u.getFriendList();
@@ -508,9 +420,6 @@ public class Server implements Runnable, ServerInterface {
                                 for (User user : currentFriendList) {
                                     String print = user.getName() + '\n' + user.getUserId() + '\n' + user.getUserProfile().getAboutMe();
                                     printWriter.println(print);
-                                    // printWriter.println(user.getName());
-                                    // printWriter.println(user.getUserId());
-                                    // printWriter.println(user.getUserProfile().getAboutMe());
                                 }
                             } else {
                                 printWriter.println("Empty");
@@ -524,11 +433,6 @@ public class Server implements Runnable, ServerInterface {
                         String userEdit = bufferedReader.readLine();
                         String[] splitUserEdit = userEdit.split(", ");
                         User targetUser = userList.get(splitUserEdit);
-                        // for (User user : userList.values()) {
-                        //     if (user.getUserId().equals(splitUserEdit[0])) {
-                        //         targetUser = user;
-                        //     }
-                        // }
                         if (targetUser != null) {
                             targetUser.setPassword(splitUserEdit[1]);
                             targetUser.setName(splitUserEdit[2]);
@@ -543,14 +447,6 @@ public class Server implements Runnable, ServerInterface {
                         String userId = bufferedReader.readLine();
                         User deletedUser = userList.get(userId);
                         ArrayList<User> deletedUserFriendList = deletedUser.getFriendList();
-                        // for (User user : userList.values()) {
-                        //     if (user.getUserId().equals(userId)) {
-                        //         flag = true;
-                        //         deletedUser = user;
-                        //         userList.remove(user.getUsername());
-                        //         break;
-                        //     }
-                        // }
                         if (deletedUser == null) {
                             printWriter.println("Failure");
                         } else {
@@ -582,15 +478,6 @@ public class Server implements Runnable, ServerInterface {
                     }
                     case "GetPendingList" -> {
                         String userId = bufferedReader.readLine();
-                        // boolean found = false;
-                        // User ownUser = null;
-                        // for (User user : userList) {
-                        //     if (user.getUserId().equals(userId)) {
-                        //         ownUser = user;
-                        //         found = true;
-                        //         break;
-                        //     }
-                        // }
                         User ownUser = userList.get(userId);
                         if (ownUser != null) {
                             if (!ownUser.getPendingList().isEmpty()) {
@@ -610,15 +497,6 @@ public class Server implements Runnable, ServerInterface {
                     }
                     case "GetRequestList" -> {
                         String userId = bufferedReader.readLine();
-                        // boolean found = false;
-                        // User ownUser = null;
-                        // for (User user : userList) {
-                        //     if (user.getUserId().equals(userId)) {
-                        //         ownUser = user;
-                        //         found = true;
-                        //         break;
-                        //     }
-                        // }
                         User ownUser = userList.get(userId);
                         if (ownUser != null) {
                             if (!ownUser.getRequestList().isEmpty()) {
