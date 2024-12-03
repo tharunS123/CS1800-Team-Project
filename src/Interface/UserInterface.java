@@ -1,77 +1,120 @@
 package src.Interface;
 
-import src.UserDatabase.Tuple;
-import src.UserDatabase.User;
+import src.Profile;
+import src.User;
 
-import java.util.List;
+import java.util.ArrayList;
 
-/**
- * The UserInterface defines the essential functionality for managing user information
- * such as login, logout, adding/removing friends, and retrieving user details.
- *
- * @version Nov 2, 2024
- * @author Tharun Kumar Senthilkumar
- */
 public interface UserInterface {
     /**
-     * Retrieves the username of the user.
+     * gets request list
      *
-     * @return the username of the user
+     * @return requestList
      */
-    String getUsername();
+    ArrayList<User> getRequestList();
 
     /**
-     * Retrieves the unique UUID associated with the user.
+     * sets new request list
      *
-     * @return the UUID of the user
+     * @param requestList new request list to set as
      */
-    String getUuid();
+    void setRequestList(ArrayList<User> requestList);
 
     /**
-     * Retrieves the password of the user.
+     * gets pending list
      *
-     * @return the password of the user
+     * @return pendingList
+     */
+    ArrayList<User> getPendingList();
+
+    /**
+     * sets new pending list
+     *
+     * @param pendingList new pendingList to set
+     */
+    void setPendingList(ArrayList<User> pendingList);
+
+    /**
+     * gets User ID
+     *
+     * @return userId
+     */
+    String getUserId();
+
+    /**
+     * gets password
+     *
+     * @return password
      */
     String getPassword();
 
     /**
-     * Checks if the user is currently logged in.
+     * gets name
      *
-     * @return true if the user is logged in, false otherwise
+     * @return name
      */
-    boolean getLoggedIn();
+    String getName();
 
     /**
-     * Retrieves a list of friends for the user.
+     * gets email
      *
-     * @return a list of friends' usernames
+     * @return email
      */
-    List<String> getFriends();
+    String getEmail();
 
     /**
-     * Attempts to log the user in by checking the provided password.
+     * gets friend list
      *
-     * @param password the password to check
-     * @return a Tuple containing a boolean indicating the success of the login attempt and the user
+     * @return friendList
      */
-    Tuple<Boolean, User> logIn(String password);
+    ArrayList<User> getFriendList();
 
     /**
-     * Logs the user out.
+     * gets user profile
+     *
+     * @return userProfile
      */
-    void logOut();
+    Profile getUserProfile();
 
     /**
-     * Adds a new friend to the user's friend list.
+     * sets new userId
      *
-     * @param friendUsername the username of the friend to add
+     * @param userId new UserId to set
      */
-    void addFriend(String friendUsername);
+    void setUserId(String userId);
 
     /**
-     * Removes a friend from the user's friend list.
+     * sets new password
      *
-     * @param friendUsername the username of the friend to remove
+     * @param password new password to set
      */
-    void removeFriend(String friendUsername);
+    void setPassword(String password);
+
+    /**
+     * sets new name
+     *
+     * @param name new name to set
+     */
+    void setName(String name);
+
+    /**
+     * sets new email
+     *
+     * @param email new email to set
+     */
+    void setEmail(String email);
+
+    /**
+     * sets new friend list
+     *
+     * @param friendList new friend list to set
+     */
+    void setFriendList(ArrayList<User> friendList);
+
+    /**
+     * sets new user profile
+     *
+     * @param userProfile new user profile to set
+     */
+    void setUserProfile(Profile userProfile);
 }

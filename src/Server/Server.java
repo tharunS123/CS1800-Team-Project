@@ -1,46 +1,84 @@
 package src.Server;
 
-import src.Interface.ClientHandlerInterface;
 import src.Interface.ServerInterface;
-import src.PostDatabase.Post;
-import src.PostDatabase.PostDatabase;
-import src.UserDatabase.User;
-import src.UserDatabase.UserDatabase;
+import src.Profile;
+import src.User;
+
 import java.io.BufferedReader;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 /**
- * The Server class handles client-server communication for a multi-client application.
- * It supports user authentication, post creation, and post viewing through an interactive console interface.
+ * A class representing the backend server-side of our application.
+ * All the processing of data, connecting to the client, and including the file I/O happens here.
  *
- * @author Tharun Kumar Senthilkumar & Eashan
- **/
-public class Server implements ServerInterface {
+ * @author Tharun Kumar Senthilkumar & Eashan & Abdullah Haris
+ * @version Dec 8, 2024
+ */
+public class Server implements Runnable, ServerInterface {
+    Socket socket;
+    public static ArrayList<User> userArrayList;
+    public static File fileName;
 
     /**
-     * The user database used for managing user credentials.
+     * The constructor of ProfileServer which uses one parameter : socket
+     *
+     * @param socket The socket that connect this computer connect with the server
      */
-    private static final UserDatabase userDatabase = new UserDatabase("user_database.txt");
+    public Server(Socket socket) {
+        this.socket = socket;
+    }
 
-    /**
-     * The post database used for managing posts created by users.
-     */
-    private static final PostDatabase postDatabase = new PostDatabase("post_database.txt");
+    public static void main(String[] args) {
+        //Initialize an arraylist to store all user data.
+        userArrayList = new ArrayList<>();
+        fileName = new File("database.dat");
+        /*
+         * If there is no such date file, a file would be created
+         * else, would lead user objectInputStream to read user object inside the file.
+         */
+        if (!fileName.exists()) {
+            try {
+                fileName.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try (ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(fileName))) {
+                Object readObject = objectInputStream.readObject();
+                while (readObject != null) {
+                    userArrayList.add((User) readObject);
+                    readObject = objectInputStream.readObject();
+                }
+                /* Catch EOF exception which indicates that the objectInputStream has reached an end.
+                 * This is for special case when there is no object inside the data file but the file is created.
+                 */
+            } catch (EOFException eofException) {
 
-    public static void main(String[] args) throws IOException {
-        try {
-            ServerSocket serverSocket = new ServerSocket(12345);
-            System.out.println("Server is running and waiting for clients...");
-            userDatabase.loadUsers();
-            postDatabase.loadPosts();
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        try (ServerSocket serverSocket = new ServerSocket(1112)) {
+            /*
+             * Use a while loop to accept all socket receives with multithreading
+             * A thread would be start whenever the a socket is accepted
+             * The socket would be pass to a thread to interacting with the client.
+             */
             while (true) {
-                Socket clientSocket = serverSocket.accept();
-                System.out.println("New client connected: " + clientSocket.getInetAddress());
-                new ClientHandler(clientSocket).start();
+                Socket socket = serverSocket.accept();
+                Server server = new Server(socket);
+                new Thread(server).start();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -48,228 +86,607 @@ public class Server implements ServerInterface {
     }
 
     /**
-     * The ClientHandler class handles the interaction with an individual client.
-     * Each client connection is processed in a separate thread.
+     * login method
+     * Check the username and password to see if the user logs in.
      *
-     * @author Tharun Kumar Senthilkumar & Eashan
+     * @param username the username of the login user
+     * @param password the password of the login user
+     * @return true if the username and password are correct
+     *         false if otherwise
      */
-    private static class ClientHandler extends Thread implements ClientHandlerInterface {
-        private Socket clientSocket;
-        private boolean loggedIn = false;
-        private User currentUser;
-
-        /**
-         * Constructs a new ClientHandler for a given client socket.
-         *
-         * @param socket The socket connected to the client.
-         */
-        public ClientHandler(Socket socket) {
-            this.clientSocket = socket;
+    @Override
+    public synchronized boolean login(String username, String password) {
+        boolean hasAccount = false;
+        if (userArrayList.isEmpty()) {
+            return false;
+        } else {
+            for (User user : userArrayList) {
+                if (user.getUserId().equals(username)
+                        && user.getPassword().equals(password)) {
+                    hasAccount = true;
+                    break;
+                }
+            }
+            return hasAccount;
         }
+    }
 
-        /**
-         * The main logic for handling client requests. Processes user authentication, post creation,
-         * and other client actions based on the user's login state.
-         */
-        @Override
-        public void run() {
-            try (
-                    BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                    PrintWriter output = new PrintWriter(clientSocket.getOutputStream(), true);
-            ) {
-                while (true) {
-                    if (loggedIn) {
-                        output.println("You are logged in. Choose an option: 'create post', 'view posts', 'logout'");
-                        String choice = input.readLine();
-                        if (choice == null || choice.trim().isEmpty()) continue;
+    /**
+     * getProfile method
+     * Gets the Profile that matches with the given userId parameter
+     *
+     * @param userId the user ID to search for
+     * @return Profile if found, null if not found
+     */
+    @Override
+    public synchronized Profile getProfile(String userId) {
+        Profile profile = null;
+        for (User user : userArrayList) {
+            if (user.getUserId().equals(userId)) {
+                profile = user.getUserProfile();
+            }
+        }
+        return profile;
+    }
 
-                        switch (choice.toLowerCase()) {
-                            case "create post":
-                                output.println("Post creation functionality not implemented.");
-                                handleCreatePost(input, output);
-                                break;
-                            case "view posts":
-                                output.println("View posts functionality not implemented.");
-                                handleViewPosts(input, output);
-                                break;
-                            case "logout":
-                                loggedIn = false;
-                                currentUser = null;
-                                output.println("Logged out. Returning to main menu.");
-                                break;
-                            default:
-                                output.println("Invalid option. Try again.");
-                                break;
-                        }
-                    } else {
-                        output.println("Choose an option: 'login', 'signup', or 'exit'");
-                        String choice = input.readLine();
-                        if (choice == null || choice.trim().isEmpty()) continue;
+    /**
+     * setUserProfile method
+     * Sets the userProfile up with the inserted userId
+     *
+     * @param userProfile the profile to set up
+     * @param userId the Id to connect the profile to
+     * @return true if success, false if userId is not found
+     */
+    @Override
+    public synchronized boolean setUserProfile(Profile userProfile, String userId) {
+        boolean success = false;
+        for (User user : userArrayList) {
+            if (user.getUserId().equals(userId)) {
+                user.setUserProfile(userProfile);
+                success = true;
+            }
+        }
+        return success;
+    }
 
-                        switch (choice.toLowerCase()) {
-                            case "login":
-                                handleLogin(input, output);
-                                break;
-                            case "signup":
-                                handleSignup(input, output);
-                                break;
-                            case "exit":
-                                output.println("Goodbye!");
-                                return;
-                            default:
-                                output.println("Invalid option. Try again.");
-                                break;
+    /**
+     * requestFriend method
+     * Sends out a friend request to the receiver using userId as a guide
+     *
+     * @param ownId id of the requester
+     * @param friendId id of the user that the requester want to request
+     * @return "RequestSuccess" if the success;
+     *         "Already friend!" if in each other 's friendList;
+     *         "Already requested!" if requested user in requester 's requested list;
+     *         "Already being requested!" if the requested user has already sent a request to requester;
+     */
+    @Override
+    public synchronized String requestFriend(String ownId, String friendId) {
+        User own = null;
+        User friend = null;
+        for (User user : userArrayList) {
+            if (user.getUserId().equals(ownId)) {
+                own = user;
+            } else if (user.getUserId().equals(friendId)) {
+                friend = user;
+            }
+            if (own != null && friend != null) {
+                break;
+            }
+        }
+        if (own != null && friend != null) {
+            if (own.getFriendList().contains(friend) && friend.getFriendList().contains(own)) {
+                return "Already friend!";
+            } else if (own.getRequestList().contains(friend) && friend.getPendingList().contains(own)) {
+                return "Already requested!";
+            } else if (own.getPendingList().contains(friend) && friend.getRequestList().contains(own)) {
+                return "Already being requested!";
+            } else {
+                own.getRequestList().add(friend);
+                friend.getPendingList().add(own);
+                return "RequestSuccess";
+            }
+        } else {
+            return "UserNotFound";
+        }
+    }
+
+    /**
+     * deleteFriend method
+     * Delete the friend in user's friendList and vice versa for the friend who got deleted.
+     *
+     * @param ownId the id of the deleter
+     * @param friendId the id of the friend that deleter want to delete
+     * @return True if the deletion is success; False if no existence
+     */
+    @Override
+    public synchronized boolean deleteFriend(String ownId, String friendId) {
+        User ownUser = null;
+        User friendUser = null;
+        for (User user : userArrayList) {
+            if (user.getUserId().equals(ownId)) {
+                ownUser = user;
+            }
+            if (user.getUserId().equals(friendId)) {
+                friendUser = user;
+            }
+            if (ownUser != null && friendUser != null) {
+                break;
+            }
+        }
+        if (ownUser == null || friendUser == null) {
+            return false;
+        }
+        boolean existInOwn = ownUser.getFriendList().removeIf(user -> user.getUserId().equals(friendId));
+        boolean existInFriend = friendUser.getFriendList().removeIf(user -> user.getUserId().equals(ownId));
+        return (existInOwn && existInFriend);
+    }
+
+    /**
+     * uniquePhoneNoCheck method
+     * Check to make sure every phone number registered is unique.
+     *
+     * @param phoneNumber  Phone Number of the user
+     * @return True if the phone number is unique; False if it has been used.
+     */
+    @Override
+    public synchronized boolean uniquePhoneNoCheck(String phoneNumber) {
+        if (userArrayList.isEmpty()) {
+            return true;
+        }
+        boolean unique = true;
+        for (User user : userArrayList) {
+            if (user.getUserProfile().getPhoneNumber().equals(phoneNumber)) {
+                unique = false;
+                break;
+            }
+        }
+        return unique;
+    }
+
+    /**
+     * uniqueIdCheck method
+     * checks if the given parameter userId is unique in the database
+     *
+     * @param userId the userId to check
+     * @return true if userId is unique, false otherwise
+     */
+    @Override
+    public synchronized boolean uniqueIdCheck(String userId) {
+        if (userArrayList.isEmpty()) {
+            return true;
+        }
+        boolean unique = true;
+        for (User user : userArrayList) {
+            if (user.getUserId().equals(userId)) {
+                unique = false;
+                break;
+            }
+        }
+        return unique;
+    }
+
+    /**
+     * acceptFriend method
+     * accept the request in pending list
+     * add to each other's friendList
+     * delete history in pending and requested list
+     *
+     * @param ownId the id of the user who accept the request
+     * @param friendId the id of the user who sent the request
+     * @return "AcceptSuccess" if there is an request and are accepted successfully
+     *         "No request found" if there are no request
+     *         "No such user found" if can not find the user of either ownId or friendId
+     */
+    @Override
+    public synchronized String acceptFriend(String ownId, String friendId) {
+        User own = null;
+        User friend = null;
+        for (User user : userArrayList) {
+            if (user.getUserId().equals(ownId)) {
+                own = user;
+            } else if (user.getUserId().equals(friendId)) {
+                friend = user;
+            }
+            if (own != null && friend != null) {
+                break;
+            }
+        }
+        if (own != null && friend != null) {
+            if (own.getPendingList().contains(friend) && friend.getRequestList().contains(own)) {
+                own.getFriendList().add(friend);
+                friend.getFriendList().add(own);
+                own.getPendingList().remove(friend);
+                friend.getRequestList().remove(own);
+                return "AcceptSuccess";
+            } else {
+                return "No request found.";
+            }
+        } else {
+            return "No such user found.";
+        }
+    }
+
+    /**
+     * denyFriend method
+     * deny the request in pending list
+     * delete history in pending and requested list
+     *
+     * @param ownId the id of the user who deny the request
+     * @param friendId the id of the user who sent the request
+     * @return "DenySuccess" if there is an request and deny successfully
+     *         "No request found" if there are no request
+     *         "No such user found" if can not find the user of either ownId or friendId
+     */
+    @Override
+    public synchronized String denyFriend(String ownId, String friendId) {
+        User own = null;
+        User friend = null;
+        for (User user : userArrayList) {
+            if (user.getUserId().equals(ownId)) {
+                own = user;
+            } else if (user.getUserId().equals(friendId)) {
+                friend = user;
+            }
+            if (own != null && friend != null) {
+                break;
+            }
+        }
+        if (own != null && friend != null) {
+            if (own.getPendingList().contains(friend) && friend.getRequestList().contains(own)) {
+                own.getPendingList().remove(friend);
+                friend.getRequestList().remove(own);
+                return "DenySuccess";
+            } else {
+                return "No request found";
+            }
+        } else {
+            return "No such user found.";
+        }
+    }
+
+    /**
+     * resendRequest method
+     * check if the request has been sent
+     * if not resend request, if sent, ask the user to be more patient
+     *
+     * @param ownId the login user
+     * @param friendId the user who have been requested
+     * @return "RequestExisted" if the request is in the user's pending list
+     *         "ResendSuccess" if there is no request and the request is resend
+     *         "No such user found" if can not find user of either ownId or friendId
+     */
+    @Override
+    public synchronized String resendRequest(String ownId, String friendId) {
+        User own = null;
+        User friend = null;
+        for (User user : userArrayList) {
+            if (user.getUserId().equals(ownId)) {
+                own = user;
+            } else if (user.getUserId().equals(friendId)) {
+                friend = user;
+            }
+            if (own != null && friend != null) {
+                break;
+            }
+        }
+        if (own != null && friend != null) {
+            if (friend.getPendingList().contains(own) && own.getRequestList().contains(friend)) {
+                return "RequestExisted";
+            } else {
+                if (friend.getPendingList().contains(own)) {
+                    own.getRequestList().add(friend);
+                } else if (own.getRequestList().contains(friend)) {
+                    friend.getPendingList().add(own);
+                }
+                return "ResendSuccess";
+            }
+        } else {
+            return "No such user found.";
+        }
+    }
+
+    /**
+     * run method
+     * Start whenever a new socket is accepted
+     * create a printWriter and a bufferedReader
+     * Use a switch to perform different tasks required by the clients
+     */
+    @Override
+    public void run() {
+        try (PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
+             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()))){
+            while (true) {
+                String command = bufferedReader.readLine();
+                //To stop this thread when the user close the software.
+                if (command == null) {
+                    printWriter.close();
+                    bufferedReader.close();
+                    socket.close();
+                    // Save the data into the data file if userArrayList is not empty
+                    if (!userArrayList.isEmpty()) {
+                        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(fileName))) {
+                            for (User user : userArrayList) {
+                                objectOutputStream.writeObject(user);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
                     }
+                    return;
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    clientSocket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                switch (command) {
+                    case "Login" -> {
+                        String loginUser = bufferedReader.readLine();
+                        String password = bufferedReader.readLine();
+                        boolean hasAccount = login(loginUser, password);
+                        if (hasAccount) {
+                            printWriter.println("Success");
+                        } else {
+                            printWriter.println("Invalid");
+                        }
+                        printWriter.flush();
+                    }
+                    case "Register" -> {
+                        //The User would send the user account info in a string
+                        String newUser = bufferedReader.readLine();
+                        String[] splitNewUser = newUser.split(", ");
+                        userArrayList.add(new User(splitNewUser[0], splitNewUser[1],
+                                splitNewUser[2], splitNewUser[3]));
+                        printWriter.println("Success");
+                        printWriter.flush();
+                    }
+                    case "AcceptFriend" -> {
+                        String ownId = bufferedReader.readLine();
+                        String friendId = bufferedReader.readLine();
+                        String result = acceptFriend(ownId, friendId);
+                        printWriter.println(result);
+                        printWriter.flush();
+                    }
+                    case "DenyFriend" -> {
+                        String ownId = bufferedReader.readLine();
+                        String friendId = bufferedReader.readLine();
+                        String result = denyFriend(ownId, friendId);
+                        printWriter.println(result);
+                        printWriter.flush();
+                    }
+                    case "RequestFriend" -> {
+                        String ownId = bufferedReader.readLine();
+                        String friendId = bufferedReader.readLine();
+                        String result = requestFriend(ownId, friendId);
+                        printWriter.println(result);
+                        printWriter.flush();
+                    }
+                    case "ResendRequest" -> {
+                        String ownId = bufferedReader.readLine();
+                        String friendId = bufferedReader.readLine();
+                        String result = resendRequest(ownId, friendId);
+                        printWriter.println(result);
+                        printWriter.flush();
+                    }
+                    case "DeleteFriend" -> {
+                        String ownId = bufferedReader.readLine();
+                        String friendId = bufferedReader.readLine();
+                        boolean success = deleteFriend(ownId, friendId);
+                        if (success) {
+                            printWriter.println("Success");
+                        } else {
+                            printWriter.println("Failure");
+                        }
+                        printWriter.flush();
+                    }
+                    case "GetFriendList" -> {
+                        String userId = bufferedReader.readLine();
+                        ArrayList<User> currentFriendList = null;
+                        boolean found = false;
+                        for (User user : userArrayList) {
+                            if (user.getUserId().equals(userId)) {
+                                currentFriendList = user.getFriendList();
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (found) {
+                            if (!currentFriendList.isEmpty()) {
+                                printWriter.println(currentFriendList.size());
+                                for (User user : currentFriendList) {
+                                    printWriter.println(user.getName());
+                                    printWriter.println(user.getUserId());
+                                    printWriter.println(user.getUserProfile().getAboutMe());
+                                }
+                            } else {
+                                printWriter.println("Empty");
+                            }
+                        } else {
+                            printWriter.println("NotFound");
+                        }
+                        printWriter.flush();
+                    }
+                    case "EditOwnAccount" -> {
+                        String userEdit = bufferedReader.readLine();
+                        User targetUser = null;
+                        String[] splitUserEdit = userEdit.split(", ");
+                        for (User user : userArrayList) {
+                            if (user.getUserId().equals(splitUserEdit[0])) {
+                                targetUser = user;
+                            }
+                        }
+                        if (targetUser != null) {
+                            targetUser.setPassword(splitUserEdit[1]);
+                            targetUser.setName(splitUserEdit[2]);
+                            targetUser.setEmail(splitUserEdit[3]);
+                            printWriter.println("Success");
+                        } else {
+                            printWriter.println("User not found");
+                        }
+                        printWriter.flush();
+                    }
+                    case "DeleteOwnAccount" -> {
+                        boolean flag = false;
+                        String userId = bufferedReader.readLine();
+                        User deletedUser = null;
+                        for (User user : userArrayList) {
+                            if (user.getUserId().equals(userId)) {
+                                flag = true;
+                                deletedUser = user;
+                                userArrayList.remove(user);
+                                break;
+                            }
+                        }
+                        if (!flag) {
+                            printWriter.println("Failure");
+                        } else {
+                            for (User user : userArrayList) {
+                                user.getRequestList().remove(deletedUser);
+                                user.getPendingList().remove(deletedUser);
+                                user.getFriendList().remove(deletedUser);
+                            }
+                            printWriter.println("Success");
+                        }
+                        printWriter.flush();
+                    }
+                    case "GetUserList" -> {
+                        String userId = bufferedReader.readLine();
+                        if (userArrayList.size() > 1) {
+                            printWriter.println(userArrayList.size() - 1);
+                            for (User user : userArrayList) {
+                                if (!user.getUserId().equals(userId)) {
+                                    printWriter.println(user.getName());
+                                    printWriter.println(user.getUserId());
+                                    printWriter.println(user.getUserProfile().getAboutMe());
+                                }
+                            }
+                        } else {
+                            printWriter.println("Empty");
+                        }
+                        printWriter.flush();
+                    }
+                    case "GetPendingList" -> {
+                        String userId = bufferedReader.readLine();
+                        boolean found = false;
+                        User ownUser = null;
+                        for (User user : userArrayList) {
+                            if (user.getUserId().equals(userId)) {
+                                ownUser = user;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (found) {
+                            if (!ownUser.getPendingList().isEmpty()) {
+                                printWriter.println(ownUser.getPendingList().size());
+                                for (User user : ownUser.getPendingList()) {
+                                    printWriter.println(user.getName());
+                                    printWriter.println(user.getUserId());
+                                    printWriter.println(user.getUserProfile().getAboutMe());
+                                }
+                            } else {
+                                printWriter.println("Empty");
+                            }
+                        } else {
+                            printWriter.println("NotFound");
+                        }
+                        printWriter.flush();
+                    }
+                    case "GetRequestList" -> {
+                        String userId = bufferedReader.readLine();
+                        boolean found = false;
+                        User ownUser = null;
+                        for (User user : userArrayList) {
+                            if (user.getUserId().equals(userId)) {
+                                ownUser = user;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (found) {
+                            if (!ownUser.getRequestList().isEmpty()) {
+                                printWriter.println(ownUser.getRequestList().size());
+                                for (User user : ownUser.getRequestList()) {
+                                    printWriter.println(user.getName());
+                                    printWriter.println(user.getUserId());
+                                    printWriter.println(user.getUserProfile().getAboutMe());
+                                }
+                            } else {
+                                printWriter.println("Empty");
+                            }
+                        } else {
+                            printWriter.println("NotFound");
+                        }
+                        printWriter.flush();
+                    }
+                    case "EditOwnProfile" -> {
+                        String userId = bufferedReader.readLine();
+                        Profile userProfile = getProfile(userId);
+                        String[] splitProfile = bufferedReader.readLine().split("/ ");
+                        userProfile.setPhoneNumber(splitProfile[0]);
+                        userProfile.setRelationship(splitProfile[1]);
+                        userProfile.setGender(splitProfile[2]);
+                        userProfile.setCurrentOccupation(splitProfile[3]);
+                        userProfile.setInterest(splitProfile[4]);
+                        userProfile.setAboutMe(splitProfile[5]);
+                        boolean success = setUserProfile(userProfile, userId);
+                        if (success) {
+                            printWriter.println("Success");
+                        } else {
+                            printWriter.println("Failure");
+                        }
+                        printWriter.flush();
+                    }
+                    case "DeleteOwnProfile" -> {
+                        String userId = bufferedReader.readLine();
+                        if (getProfile(userId).getPhoneNumber().equals("") && getProfile(userId).getAboutMe().equals("")
+                                && getProfile(userId).getCurrentOccupation().equals("") &&
+                                getProfile(userId).getInterest().equals("")) {
+                            printWriter.println("No Profile");
+                            printWriter.flush();
+                            break;
+                        }
+                        boolean success = setUserProfile(
+                                new Profile("", "", "", "", "",
+                                        ""), userId);
+                        if (success) {
+                            printWriter.println("Success");
+                        } else {
+                            printWriter.println("Failure");
+                        }
+                        printWriter.flush();
+                    }
+                    case "UniquePhoneNoCheck" -> {
+                        String phoneNo = bufferedReader.readLine();
+                        boolean unique = uniquePhoneNoCheck(phoneNo);
+                        if (unique) {
+                            printWriter.println("Unique");
+                        } else {
+                            printWriter.println("Exists");
+                        }
+                        printWriter.flush();
+                    }
+                    case "UniqueIdCheck" -> {
+                        String userId = bufferedReader.readLine();
+                        boolean unique = uniqueIdCheck(userId);
+                        if (unique) {
+                            printWriter.println("Unique");
+                        } else {
+                            printWriter.println("Exists");
+                        }
+                        printWriter.flush();
+                    }
+                    case "GetProfileContent" -> {
+                        String userId = bufferedReader.readLine();
+                        Profile profile = getProfile(userId);
+                        printWriter.println(profile.getPhoneNumber());
+                        printWriter.println(profile.getCurrentOccupation());
+                        printWriter.println(profile.getGender());
+                        printWriter.println(profile.getAboutMe());
+                        printWriter.println(profile.getInterest());
+                        printWriter.println(profile.getRelationship());
+                        printWriter.flush();
+                    }
                 }
             }
-        }
-
-        @Override
-        public void handleClient() {
-
-        }
-
-        @Override
-        public void login() {
-
-        }
-
-        @Override
-        public void register() {
-
-        }
-
-        @Override
-        public void createPost() {
-
-        }
-
-        @Override
-        public void viewPosts() {
-
-        }
-
-        @Override
-        public void logout() {
-
-        }
-
-        @Override
-        public String readLine() {
-            return "";
-        }
-
-        /**
-         * Handles user login by verifying credentials against the user database.
-         *
-         * @param input  The {@link BufferedReader} to read client input.
-         * @param output The {@link PrintWriter} to send responses to the client.
-         * @throws IOException if an I/O error occurs while reading or writing data.
-         */
-        public void handleLogin(BufferedReader input, PrintWriter output) throws IOException {
-            output.println("Enter your username and password");
-            String credentials = input.readLine();
-            if (credentials == null) {
-                output.println("Invalid input format.");
-                return;
-            }
-
-            String[] parts = credentials.split(":");
-            if (parts.length == 2) {
-                String username = parts[0].trim();
-                String password = parts[1].trim();
-                User user = userDatabase.getUser(username);
-                if (user != null && user.getPassword().equals(password)) {
-                    loggedIn = true;
-                    currentUser = user;
-                    output.println("Login successful. Welcome, " + currentUser.getUsername() + "!");
-                } else {
-                    output.println("Invalid username or password.");
-                }
-            } else {
-                output.println("Invalid input format.");
-            }
-        }
-
-        /**
-         * Handles user signup by creating a new account in the user database.
-         *
-         * @param input  The {@link BufferedReader} to read client input.
-         * @param output The {@link PrintWriter} to send responses to the client.
-         * @throws IOException if an I/O error occurs while reading or writing data.
-         */
-        public void handleSignup(BufferedReader input, PrintWriter output) throws IOException {
-            output.println("Enter your username and password");
-            String credentials = input.readLine();
-            if (credentials == null) {
-                output.println("Invalid input format.");
-                return;
-            }
-
-            String[] parts = credentials.split(":");
-            if (parts.length == 2) {
-                String username = parts[0].trim();
-                String password = parts[1].trim();
-                User newUser = new User(username, password);
-                if (userDatabase.addUser(newUser)) {
-                    output.println("Account created. You can now log in.");
-                } else {
-                    output.println("Username already exists. Try a different one.");
-                }
-            } else {
-                output.println("Invalid input format.");
-            }
-        }
-
-        /**
-         * Handles the creation of new posts by logged-in users.
-         *
-         * @param input  The {@link BufferedReader} to read client input.
-         * @param output The {@link PrintWriter} to send responses to the client.
-         * @throws IOException if an I/O error occurs while reading or writing data.
-         */
-        public void handleCreatePost(BufferedReader input, PrintWriter output) throws IOException {
-            output.println("Enter your post content");
-            String credentials = input.readLine();
-            if (credentials == null) {
-                output.println("Invalid input format.");
-                return;
-            }
-
-            String[] parts = credentials.split(":");
-            if (parts.length == 2) {
-                String title = parts[0].trim();
-                String content = parts[1].trim();
-                String author = currentUser.getUsername();
-                Post newPost = new Post(title, content, author);
-                if (postDatabase.addPost(newPost)) {
-                    output.println("Post created. You can now view posts.");
-                } else {
-                    output.println("Post creation failed. Try again.");
-                }
-            } else {
-                output.println("Invalid input format.");
-            }
-        }
-
-        /**
-         * Handles the viewing of posts. Currently not implemented.
-         *
-         * @param input  The {@link BufferedReader} to read client input.
-         * @param output The {@link PrintWriter} to send responses to the client.
-         * @throws IOException if an I/O error occurs while reading or writing data.
-         */
-        public void handleViewPosts(BufferedReader input, PrintWriter output) throws IOException {
-            output.println("not yet implemented");
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
         }
     }
 }
