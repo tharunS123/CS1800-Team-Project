@@ -150,9 +150,9 @@ public class Server implements Runnable, ServerInterface {
      *         "Already being requested!" if the requested user has already sent a request to requester;
      */
     @Override
-    public synchronized String requestFriend(String self, String friend) {
+    public synchronized String requestFriend(String self, String other) {
         User own = userList.get(self);
-        User friend = userList.get(friend);
+        User friend = userList.get(other);
         if (own != null && friend != null) {
             if (own.getFriendList().contains(friend) && friend.getFriendList().contains(own)) {
                 return "Already friend!";
@@ -179,12 +179,12 @@ public class Server implements Runnable, ServerInterface {
      * @return True if the deletion is success; False if no existence
      */
     @Override
-    public synchronized boolean deleteFriend(String self, String friend) {
+    public synchronized boolean deleteFriend(String self, String other) {
         User ownUser = userList.get(self);
-        User friendUser = userList.get(friend);
-        if (ownUser == null || friendUser == null) return false;
+        User friend = userList.get(other);
+        if (ownUser == null || friend == null) return false;
         boolean existInOwn = ownUser.getFriendList().removeIf(user -> user.getUserId().equals(friend));
-        boolean existInFriend = friendUser.getFriendList().removeIf(user -> user.getUserId().equals(self));
+        boolean existInFriend = friend.getFriendList().removeIf(user -> user.getUserId().equals(self));
         return (existInOwn && existInFriend);
     }
 
@@ -245,9 +245,9 @@ public class Server implements Runnable, ServerInterface {
      *         "No such user found" if can not find the user of either self or friend
      */
     @Override
-    public synchronized String acceptFriend(String self, String friend) {
+    public synchronized String acceptFriend(String self, String other) {
         User own = userList.get(self);
-        User friend = userList.get(friend);
+        User friend = userList.get(other);
         if (own != null && friend != null) {
             if (own.getPendingList().contains(friend) && friend.getRequestList().contains(own)) {
                 own.getFriendList().add(friend);
@@ -275,9 +275,9 @@ public class Server implements Runnable, ServerInterface {
      *         "No such user found" if can not find the user of either self or friend
      */
     @Override
-    public synchronized String denyFriend(String self, String friend) {
+    public synchronized String denyFriend(String self, String other) {
         User own = userList.get(self);
-        User friend = userList.get(friend);
+        User friend = userList.get(other);
         if (own != null && friend != null) {
             if (own.getPendingList().contains(friend) && friend.getRequestList().contains(own)) {
                 own.getPendingList().remove(friend);
@@ -303,9 +303,9 @@ public class Server implements Runnable, ServerInterface {
      *         "No such user found" if can not find user of either self or friend
      */
     @Override
-    public synchronized String resendRequest(String self, String friend) {
+    public synchronized String resendRequest(String self, String other) {
         User own = userList.get(self);
-        User friend = userList.get(friend);
+        User friend = userList.get(other);
         if (own != null && friend != null) {
             if (friend.getPendingList().contains(own) && own.getRequestList().contains(friend)) {
                 return "RequestExisted";
