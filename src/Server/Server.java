@@ -3,6 +3,7 @@ package src.Server;
 import src.Interface.ServerInterface;
 import src.Profile;
 import src.User;
+import src.oldProject.PostDatabase.Post;
 
 import java.io.BufferedReader;
 import java.io.EOFException;
@@ -18,6 +19,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A class representing the backend server-side of our application.
@@ -29,7 +31,9 @@ import java.util.HashMap;
 public class Server implements Runnable, ServerInterface {
     Socket socket;
     public static HashMap<String, User> userList;
+    public static HashMap<String, Post> postList;
     public static File fileName;
+    public static File postFilename;
 
     /**
      * The constructor of ProfileServer which uses one parameter : socket
@@ -43,7 +47,9 @@ public class Server implements Runnable, ServerInterface {
     public static void main(String[] args) {
         //Initialize an arraylist to store all user data.
         userList = new HashMap<String, User>();
+        postList = new HashMap<String, Post>();
         fileName = new File("database.dat");
+        postFilename = new File("postDatabase.dat");
         /*
          * If there is no such date file, a file would be created
          * else, would lead user objectInputStream to read user object inside the file.
@@ -143,7 +149,7 @@ public class Server implements Runnable, ServerInterface {
      * Sends out a friend request to the receiver using userId as a guide
      *
      * @param self id of the requester
-     * @param friend id of the user that the requester want to request
+     * @param other id of the user that the requester want to request
      * @return "RequestSuccess" if the success;
      *         "Already friend!" if in each other 's friendList;
      *         "Already requested!" if requested user in requester 's requested list;
@@ -175,7 +181,7 @@ public class Server implements Runnable, ServerInterface {
      * Delete the friend in user's friendList and vice versa for the friend who got deleted.
      *
      * @param self the id of the deleter
-     * @param friend the id of the friend that deleter want to delete
+     * @param other the id of the friend that deleter want to delete
      * @return True if the deletion is success; False if no existence
      */
     @Override
@@ -239,7 +245,7 @@ public class Server implements Runnable, ServerInterface {
      * delete history in pending and requested list
      *
      * @param self the id of the user who accept the request
-     * @param friend the id of the user who sent the request
+     * @param other the id of the user who sent the request
      * @return "AcceptSuccess" if there is an request and are accepted successfully
      *         "No request found" if there are no request
      *         "No such user found" if can not find the user of either self or friend
@@ -269,7 +275,7 @@ public class Server implements Runnable, ServerInterface {
      * delete history in pending and requested list
      *
      * @param self the id of the user who deny the request
-     * @param friend the id of the user who sent the request
+     * @param other the id of the user who sent the request
      * @return "DenySuccess" if there is an request and deny successfully
      *         "No request found" if there are no request
      *         "No such user found" if can not find the user of either self or friend
@@ -297,7 +303,7 @@ public class Server implements Runnable, ServerInterface {
      * if not resend request, if sent, ask the user to be more patient
      *
      * @param self the login user
-     * @param friend the user who have been requested
+     * @param other the user who have been requested
      * @return "RequestExisted" if the request is in the user's pending list
      *         "ResendSuccess" if there is no request and the request is resend
      *         "No such user found" if can not find user of either self or friend
@@ -319,6 +325,25 @@ public class Server implements Runnable, ServerInterface {
             }
         } else {
             return "No such user found.";
+        }
+    }
+
+    /**
+     * Loads all posts from the database.
+     *
+     * @return A map of posts where the key is the string representation of the post,
+     * and the value is the post object.
+     */
+    @SuppressWarnings("unchecked")
+    public Map<String, Post> loadPosts() {
+        if (fileName.length() == 0) {
+            return new HashMap<>();
+        }
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileName))) {
+            return (Map<String, Post>) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return new HashMap<>();
         }
     }
 

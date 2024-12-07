@@ -46,6 +46,7 @@ public class UserFrame extends JComponent implements Runnable, UserFrameInterfac
     JButton add;
     JButton account;
     JButton back;
+    JButton createPost;
     JPopupMenu popupMenu;
     JMenuItem viewProfile;
     JMenuItem deleteFriend;
@@ -130,6 +131,10 @@ public class UserFrame extends JComponent implements Runnable, UserFrameInterfac
                 SwingUtilities.invokeLater(new AccountProfileFrame(socket, userId));
                 userFrame.dispose();
             }
+            if (e.getSource() == createPost) {
+                SwingUtilities.invokeLater(new CreatePostFrame(socket, userId));
+                userFrame.dispose();
+            }
         }
     };
 
@@ -181,9 +186,11 @@ public class UserFrame extends JComponent implements Runnable, UserFrameInterfac
         add = new JButton("Add Friend");
         account = new JButton("Create/Edit Profile & Account");
         back = new JButton("Log Out");
+        createPost = new JButton("Create Post");
         back.addActionListener(buttonActionListener);
         add.addActionListener(buttonActionListener);
         account.addActionListener(buttonActionListener);
+        createPost.addActionListener(buttonActionListener);
 
         panel.add(add);
         panel.add(new JLabel("Find a specific friend"));
@@ -193,6 +200,7 @@ public class UserFrame extends JComponent implements Runnable, UserFrameInterfac
         panel.setVisible(true);
         userFrame.add(panel, BorderLayout.NORTH);
         panel3.add(back);
+        panel3.add(createPost);
         userFrame.add(panel3, BorderLayout.SOUTH);
         jScrollPane = new JScrollPane(jTable, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                   JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);

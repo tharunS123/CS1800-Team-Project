@@ -25,7 +25,7 @@ public class Client {
     public static void main(String[] args) {
         Socket socket;
         try {
-            socket = new Socket("10.193.41.2", 1112);
+            socket = new Socket("localhost", 1112);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(null,
                     "Unable to connect to the server", "Error", JOptionPane.ERROR_MESSAGE);
