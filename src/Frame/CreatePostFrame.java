@@ -43,22 +43,17 @@ public class CreatePostFrame extends JOptionPane implements Runnable {
           if (e.getSource() == createPostButton) {
               System.out.println("Create post button clicked"); // Add this for debugging
           }
-          System.out.println("Hello huzz");
             if (e.getSource() == backButton) {
                 SwingUtilities.invokeLater(new UserFrame(socket, userID));
                 createPostFrame.dispose();
             }
             if (e.getSource() == createPostButton) {
-              System.out.println("Made it to button action handling meow balls");
                 String postTitle = postTitleTextField.getText();
                 String postContent = postContentTextArea.getText();
                 if (postTitle.isEmpty() || postContent.isEmpty()) {
                     JOptionPane.showMessageDialog(createPostFrame, "Please fill in all fields.");
                     return;
                 }
-                SwingUtilities.invokeLater(new UserFrame(socket, userID));
-                createPostFrame.dispose(); // for now
-                // TODO below
                printWriter.println("CreatePost");
                // printWriter.println("%s/ %s/", postTitle, postContent);
                printWriter.println(postTitle);
@@ -75,7 +70,7 @@ public class CreatePostFrame extends JOptionPane implements Runnable {
                    JOptionPane.showMessageDialog(null, "Congratulations!\n" +
                                    "You have successfully created your post!",
                            "Create Post Successful", JOptionPane.INFORMATION_MESSAGE);
-                   SwingUtilities.invokeLater(new ProfileMenuFrame(socket, userID));
+                   SwingUtilities.invokeLater(new UserFrame(socket, userID));
                    createPostFrame.dispose();
                } else {
                    JOptionPane.showMessageDialog(null, "Oops!" +

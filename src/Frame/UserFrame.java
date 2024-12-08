@@ -34,7 +34,7 @@ public class UserFrame extends JComponent implements Runnable, UserFrameInterfac
     PrintWriter printWriter;
     String userId;
 
-    String[] columnName = {"Name", "ID", "About me"};
+    String[] columnName = {"Title", "Post", "Date"};
     String[][] rowData = new String[3][3];
 
     DefaultTableModel model;

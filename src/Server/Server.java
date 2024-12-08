@@ -157,7 +157,7 @@ public class Server implements Runnable, ServerInterface {
       Post post = new Post(title, content, userId);
       postList.put(postNumbering, post);
       postNumbering++;
-      for(Post p : postList.values()){
+      for (Post p : postList.values()) {
         System.out.println(p);
       }
       return true;
@@ -423,7 +423,7 @@ public class Server implements Runnable, ServerInterface {
                     }
                     if (!postList.isEmpty()) {
                       System.out.println("not empty");
-                        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(fileName))) {
+                        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(postFilename))) {
                             for (Post post : postList.values()) {
                                 objectOutputStream.writeObject(post);
                             }
@@ -665,7 +665,6 @@ public class Server implements Runnable, ServerInterface {
                         printWriter.flush();
                     }
                     case "CreatePost" -> {
-                        System.out.println("Made it to switch case");
                         String postTitle = bufferedReader.readLine();
                         String postContent = bufferedReader.readLine();
                         String userId = bufferedReader.readLine();
