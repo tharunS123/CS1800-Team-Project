@@ -65,7 +65,7 @@ public class Server implements Runnable, ServerInterface {
                 Object readObject = objectInputStream.readObject();
                 while (readObject != null) {
                     User u = (User) readObject;
-                    userList.put(u.getName(), u);
+                    userList.put(u.getUserId(), u);
                     readObject = objectInputStream.readObject();
                 }
                 /* Catch EOF exception which indicates that the objectInputStream has reached an end.
@@ -107,6 +107,7 @@ public class Server implements Runnable, ServerInterface {
         if (!userList.isEmpty()) {
           if(userList.containsKey(username)){
             User user = userList.get(username);
+            System.out.println("User password:" + user.getPassword());
             if(user.getPassword().equals(password)){
               System.out.println(username + " logged in @ address: " + socket.getInetAddress());
               return true;
@@ -392,6 +393,9 @@ public class Server implements Runnable, ServerInterface {
                         //The User would send the user account info in a string
                         String newUser = bufferedReader.readLine();
                         String[] splitNewUser = newUser.split(", ");
+                        for(String s: splitNewUser){
+                          System.out.println(s);
+                        }
                         User tmpNewUser = new User(splitNewUser[0], splitNewUser[1], splitNewUser[2], splitNewUser[3] );
                         userList.put(splitNewUser[0], tmpNewUser);
                         printWriter.println("Success");
