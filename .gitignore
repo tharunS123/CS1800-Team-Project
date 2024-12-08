@@ -12,7 +12,7 @@
 /out
 
 .DS_store
-database.dat
+# database.dat
 
 *.txt
 *.iml
