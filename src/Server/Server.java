@@ -3,7 +3,7 @@ package src.Server;
 import src.Interface.ServerInterface;
 import src.Profile;
 import src.User;
-import src.oldProject.PostDatabase.Post;
+import src.Post;
 
 import java.io.BufferedReader;
 import java.io.EOFException;
@@ -31,9 +31,10 @@ import java.util.Map;
 public class Server implements Runnable, ServerInterface {
     Socket socket;
     public static HashMap<String, User> userList;
-    public static HashMap<String, Post> postList;
+    public static HashMap<Integer, Post> postList;
     public static File fileName;
     public static File postFilename;
+    public static int postNumbering;
 
     /**
      * The constructor of ProfileServer which uses one parameter : socket
@@ -47,7 +48,7 @@ public class Server implements Runnable, ServerInterface {
     public static void main(String[] args) {
         //Initialize an arraylist to store all user data.
         userList = new HashMap<String, User>();
-        postList = new HashMap<String, Post>();
+        postList = new HashMap<Integer, Post>();
         fileName = new File("database.dat");
         postFilename = new File("postDatabase.dat");
         /*
@@ -72,10 +73,35 @@ public class Server implements Runnable, ServerInterface {
                  * This is for special case when there is no object inside the data file but the file is created.
                  */
             } catch (EOFException eofException) {
-
+                System.out.println(eofException);
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
+        }
+        postNumbering = 0;
+        if (!postFilename.exists()) {
+            try {
+                postFilename.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else if (postFilename.length() > 0) { // Check if file is non-empty
+            try (ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(postFilename))) {
+                while (true) { // Loop until EOFException occurs
+                    try {
+                        Post p = (Post) objectInputStream.readObject();
+                        System.out.println(p);
+                        postList.put(postNumbering, p);
+                        postNumbering++;
+                    } catch (EOFException eofException) {
+                        break; // End of file reached
+                    }
+                }
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("Post database file is empty. No posts loaded.");
         }
         try (ServerSocket serverSocket = new ServerSocket(1112)) {
             /*
@@ -115,6 +141,26 @@ public class Server implements Runnable, ServerInterface {
           }
         }
         return false;
+    }
+
+    /**
+     * createPost method
+     * creates a post 
+     *
+     * @param title the title of the post
+     * @param content the body of the post
+     * @param userId thuzz who knuzz
+     *
+     */
+    public synchronized boolean createPost(String title, String content, String userId){
+      System.out.println("Got to createPost");
+      Post post = new Post(title, content, userId);
+      postList.put(postNumbering, post);
+      postNumbering++;
+      for(Post p : postList.values()){
+        System.out.println(p);
+      }
+      return true;
     }
 
     /**
@@ -375,6 +421,16 @@ public class Server implements Runnable, ServerInterface {
                             e.printStackTrace();
                         }
                     }
+                    if (!postList.isEmpty()) {
+                      System.out.println("not empty");
+                        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(fileName))) {
+                            for (Post post : postList.values()) {
+                                objectOutputStream.writeObject(post);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                     return;
                 }
                 switch (command) {
@@ -393,9 +449,6 @@ public class Server implements Runnable, ServerInterface {
                         //The User would send the user account info in a string
                         String newUser = bufferedReader.readLine();
                         String[] splitNewUser = newUser.split(", ");
-                        for(String s: splitNewUser){
-                          System.out.println(s);
-                        }
                         User tmpNewUser = new User(splitNewUser[0], splitNewUser[1], splitNewUser[2], splitNewUser[3] );
                         userList.put(splitNewUser[0], tmpNewUser);
                         printWriter.println("Success");
@@ -609,6 +662,19 @@ public class Server implements Runnable, ServerInterface {
                         printWriter.println(profile.getAboutMe());
                         printWriter.println(profile.getInterest());
                         printWriter.println(profile.getRelationship());
+                        printWriter.flush();
+                    }
+                    case "CreatePost" -> {
+                        System.out.println("Made it to switch case");
+                        String postTitle = bufferedReader.readLine();
+                        String postContent = bufferedReader.readLine();
+                        String userId = bufferedReader.readLine();
+                        boolean postCreated = createPost(postTitle,postContent,userId);
+                        if(postCreated){
+                          printWriter.println("Success");
+                        }else{
+                          printWriter.println("Failure");
+                        }
                         printWriter.flush();
                     }
                 }

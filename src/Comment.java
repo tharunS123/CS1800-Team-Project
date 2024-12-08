@@ -1,6 +1,7 @@
 package src;
 
 import src.Interface.CommentInterface;
+import java.io.Serializable;
 
 /**
  * The CommentInterface defines the essential functionality for managing a comment,
@@ -9,7 +10,8 @@ import src.Interface.CommentInterface;
  * @version Nov 2, 2024
  * @author Tharun Kumar Senthilkumar
  */
-public class Comment implements CommentInterface {
+public class Comment implements CommentInterface, Serializable{
+    private static final long serialVersionUID = 1L;
     private String content;
     private String user;
 

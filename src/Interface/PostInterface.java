@@ -82,7 +82,7 @@ public interface PostInterface {
      *
      * @return the date and time of the post
      */
-    String getDataAndTime();
+    long getDataAndTime();
 
     /**
      * Adds a comment to the post.

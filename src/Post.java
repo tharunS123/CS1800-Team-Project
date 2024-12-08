@@ -1,10 +1,10 @@
 package src;
 
-import src.Interface.PostInterface;
-
-import java.sql.Timestamp;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.UUID;
+
+import src.Interface.PostInterface;
 
 /**
  * The Post class represents a post in the PostDatabase. It includes details such as title, content, author, date, upvotes, downvotes, and comments.
@@ -13,13 +13,14 @@ import java.util.UUID;
  * @version Nov 2, 2024
  * @author Tharun Kumar and Mateo Toro Felipe
  */
-public class Post implements PostInterface {
-//    private static final long serialVersionUID = 8796768980835010220L; //1L;
+public class Post implements PostInterface, Serializable {
+    private static final long serialVersionUID = 1L;
+
     private UUID id;
     private String title;
     private String content;
     private String author;
-    private Timestamp date;
+    private long date; // Store timestamp as a long to make it serializable
     private int upVote;
     private int downVote;
     private ArrayList<Comment> comments;
@@ -35,13 +36,12 @@ public class Post implements PostInterface {
         this.title = title;
         this.content = content;
         this.author = author;
-        this.date = new Timestamp(System.currentTimeMillis());
+        this.date = System.currentTimeMillis(); // Use long for serialization
         this.comments = new ArrayList<>();
         this.upVote = 0;
         this.downVote = 0;
         this.id = UUID.randomUUID();
     }
-
     /**
      * Returns the ID of the post.
      *
@@ -121,7 +121,7 @@ public class Post implements PostInterface {
      */
     @Override
     public long getTime() {
-        return date.getTime();
+        return date;
     }
 
     /**
@@ -130,8 +130,8 @@ public class Post implements PostInterface {
      * @return the date and time of the post
      */
     @Override
-    public String getDataAndTime() {
-        return date.toString();
+    public long getDataAndTime() {
+        return date;
     }
 
     /**

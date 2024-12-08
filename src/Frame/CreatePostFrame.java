@@ -37,11 +37,19 @@ public class CreatePostFrame extends JOptionPane implements Runnable {
          */
         @Override
         public void actionPerformed(ActionEvent e) {
+          if (e.getSource() == backButton) {
+              System.out.println("Back button clicked"); // Add this for debugging
+          }
+          if (e.getSource() == createPostButton) {
+              System.out.println("Create post button clicked"); // Add this for debugging
+          }
+          System.out.println("Hello huzz");
             if (e.getSource() == backButton) {
                 SwingUtilities.invokeLater(new UserFrame(socket, userID));
                 createPostFrame.dispose();
             }
             if (e.getSource() == createPostButton) {
+              System.out.println("Made it to button action handling meow balls");
                 String postTitle = postTitleTextField.getText();
                 String postContent = postContentTextArea.getText();
                 if (postTitle.isEmpty() || postContent.isEmpty()) {
@@ -51,26 +59,29 @@ public class CreatePostFrame extends JOptionPane implements Runnable {
                 SwingUtilities.invokeLater(new UserFrame(socket, userID));
                 createPostFrame.dispose(); // for now
                 // TODO below
-//                printWriter.println("CreatePost");
-//                printWriter.printf("%s/ %s/", postTitle, postContent);
-//                printWriter.flush();
-//                String success = "";
-//                try {
-//                    success = bufferedReader.readLine();
-//                } catch (IOException ioException) {
-//                    ioException.printStackTrace();
-//                }
-//                if (success.equals("Success")) {
-//                    JOptionPane.showMessageDialog(null, "Congratulations!\n" +
-//                                    "You have successfully created your post!",
-//                            "Create Post Successful", JOptionPane.INFORMATION_MESSAGE);
-//                    SwingUtilities.invokeLater(new ProfileMenuFrame(socket, userID));
-//                    createPostFrame.dispose();
-//                } else {
-//                    JOptionPane.showMessageDialog(null, "Oops!" +
-//                                    "Unsuccessful creation.\nPlease retry.",
-//                            "Create Post Error", JOptionPane.ERROR_MESSAGE);
-//                }
+               printWriter.println("CreatePost");
+               // printWriter.println("%s/ %s/", postTitle, postContent);
+               printWriter.println(postTitle);
+               printWriter.println(postContent);
+               printWriter.println(userID);
+               printWriter.flush();
+               String success = "";
+               try {
+                   success = bufferedReader.readLine();
+               } catch (IOException ioException) {
+                   ioException.printStackTrace();
+               }
+               if (success.equals("Success")) {
+                   JOptionPane.showMessageDialog(null, "Congratulations!\n" +
+                                   "You have successfully created your post!",
+                           "Create Post Successful", JOptionPane.INFORMATION_MESSAGE);
+                   SwingUtilities.invokeLater(new ProfileMenuFrame(socket, userID));
+                   createPostFrame.dispose();
+               } else {
+                   JOptionPane.showMessageDialog(null, "Oops!" +
+                                   "Unsuccessful creation.\nPlease retry.",
+                           "Create Post Error", JOptionPane.ERROR_MESSAGE);
+               }
             }
         }
     };
