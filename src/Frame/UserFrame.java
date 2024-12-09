@@ -286,6 +286,7 @@ public class UserFrame extends JComponent implements Runnable, UserFrameInterfac
         String result = null;
         try {
             result = bufferedReader.readLine();
+            System.out.println(result);
         } catch (IOException e) {
             e.printStackTrace();
         }
