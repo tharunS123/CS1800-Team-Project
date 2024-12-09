@@ -1,14 +1,7 @@
 package src.Frame;
 
-import src.Interface.UserFrameInterface;
-
-import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -18,6 +11,30 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.RowFilter;
+import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
+
+import src.Interface.UserFrameInterface;
 
 /**
  * A class representing the frame displaying the friend list of the user in the application.
@@ -34,8 +51,8 @@ public class UserFrame extends JComponent implements Runnable, UserFrameInterfac
     PrintWriter printWriter;
     String userId;
 
-    String[] columnName = {"Title", "Post", "Date"};
-    String[][] rowData = new String[3][3];
+    String[] columnName = {"Title", "User", "Post", "Date"};
+    String[][] rowData = new String[4][4];
 
     DefaultTableModel model;
     JTable jTable;
@@ -50,6 +67,9 @@ public class UserFrame extends JComponent implements Runnable, UserFrameInterfac
     JPopupMenu popupMenu;
     JMenuItem viewProfile;
     JMenuItem deleteFriend;
+    SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm");
+
+    ArrayList<String> listOfUsersPosts = new ArrayList<>();
 
     ActionListener popupItemListener = new ActionListener() {
         /**
@@ -68,7 +88,7 @@ public class UserFrame extends JComponent implements Runnable, UserFrameInterfac
                             "You must first select a line! ", "No selection", JOptionPane.WARNING_MESSAGE);
                     return;
                 } else {
-                    String profileOwnerId = String.valueOf(jTable.getValueAt(selectedRow, 1));
+                    String profileOwnerId = listOfUsersPosts.get(selectedRow);
                     SwingUtilities.invokeLater(new ProfileDisplayFrame(socket, userId, profileOwnerId, "Frame.UserFrame"));
                     userFrame.dispose();
                 }
@@ -280,38 +300,31 @@ public class UserFrame extends JComponent implements Runnable, UserFrameInterfac
      */
     @Override
     public DefaultTableModel updateModel(String loginId) {
-        printWriter.println("GetFriendList");
+        printWriter.println("LoadPosts");
         printWriter.println(loginId);
+        System.out.println("Made it to updateModel");
         printWriter.flush();
-        String result = null;
         try {
-            result = bufferedReader.readLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        assert result != null;
-        if (result.equals("Empty")) {
-            rowData = null;
-
-        } else if (result.equals("NotFound")) {
-            rowData = null;
-            JOptionPane.showMessageDialog(null,
-                    "Unable to find Id", "Error", JOptionPane.ERROR_MESSAGE);
-        } else {
-            try {
-                int i = Integer.parseInt(result);
-                rowData = new String[i][3];
-                for (int j = 0; j < i; j++) {
-                    String name = bufferedReader.readLine();
-                    String id = bufferedReader.readLine();
-                    String aboutMe = bufferedReader.readLine();
-                    rowData[j][0] = name;
-                    rowData[j][1] = id;
-                    rowData[j][2] = aboutMe;
+            int num = Integer.parseInt(bufferedReader.readLine());
+            System.out.println(num);
+            rowData = new String[num][4];
+            for(int i = 0; i < num; i++) {
+                String response = bufferedReader.readLine();
+                String[] data = response.split("\\|");
+                // System.out.println(response);
+                Date date = new Date(Long.parseLong(data[2]));
+                rowData[i][0] = data[0];
+                if(data[3].equals(loginId)){
+                  rowData[i][1] = data[3]+" (you)";
+                }else{
+                  rowData[i][1] = data[3];
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
+                rowData[i][2] = data[1];
+                rowData[i][3] = sdf.format(date);
+                listOfUsersPosts.add(data[3]);
             }
+        } catch (IOException e){
+            e.printStackTrace();
         }
         return new DefaultTableModel(rowData, columnName) {
             /**

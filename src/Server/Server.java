@@ -90,7 +90,6 @@ public class Server implements Runnable, ServerInterface {
                 while (true) { // Loop until EOFException occurs
                     try {
                         Post p = (Post) objectInputStream.readObject();
-                        System.out.println(p);
                         postList.put(postNumbering, p);
                         postNumbering++;
                     } catch (EOFException eofException) {
@@ -675,6 +674,27 @@ public class Server implements Runnable, ServerInterface {
                           printWriter.println("Failure");
                         }
                         printWriter.flush();
+                    }
+                    case "LoadPosts" -> {
+                    String userId = bufferedReader.readLine();
+                    ArrayList<User> usersFriendsList = userList.get(userId).getFriendList();
+                    ArrayList<String> friendsListID = new ArrayList<String>();
+                    for(User u : usersFriendsList){
+                      friendsListID.add(u.getUserId());
+                    }
+                    int numPosts = 0;
+                    ArrayList<Post> postsToSend = new ArrayList<Post>();
+                    for(Post p : postList.values()){
+                      if(friendsListID.contains(p.getAuthor())|| p.getAuthor().equals(userId) ){
+                        numPosts++;
+                        postsToSend.add(p);
+                      }
+                    }
+                    printWriter.println(numPosts);
+                    for(Post p : postList.values()){
+                      printWriter.println(p.getTitle()+"|"+p.getContent()+"|"+p.getTime()+"|"+p.getAuthor());
+                    }
+                    printWriter.flush();
                     }
                 }
             }
