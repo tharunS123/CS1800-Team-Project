@@ -37,10 +37,13 @@ import javax.swing.table.TableRowSorter;
 import src.Interface.UserFrameInterface;
 
 /**
- * A class representing the frame displaying the friend list of the user in the application.
+ * A class representing the frame displaying the friend list of the user in the
+ * application.
  *
- * The user is able to see the profile of users in the friend list and delete them from the friend list.
- * Use a JTable to display all your friends and a search bar to find certain friends.
+ * The user is able to see the profile of users in the friend list and delete
+ * them from the friend list.
+ * Use a JTable to display all your friends and a search bar to find certain
+ * friends.
  *
  * @author Tharun Kumar Senthilkumar & Eashan & Abdullah Haris
  * @version Dec 8, 2024
@@ -51,7 +54,7 @@ public class UserFrame extends JComponent implements Runnable, UserFrameInterfac
     PrintWriter printWriter;
     String userId;
 
-    String[] columnName = {"Title", "User", "Post", "Date"};
+    String[] columnName = { "Title", "User", "Post", "Date" };
     String[][] rowData = new String[4][4];
 
     DefaultTableModel model;
@@ -76,7 +79,8 @@ public class UserFrame extends JComponent implements Runnable, UserFrameInterfac
          * @param e Invoked when any of the choice of the popup menu is selected.
          *          There are two menu choices: view profile and delete friend.
          *          An if statement is used to prevent no row is selected
-         *          The functionality would be be done by send a String order and a userId to the server.
+         *          The functionality would be be done by send a String order and a
+         *          userId to the server.
          */
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -88,8 +92,9 @@ public class UserFrame extends JComponent implements Runnable, UserFrameInterfac
                             "You must first select a line! ", "No selection", JOptionPane.WARNING_MESSAGE);
                     return;
                 } else {
-                    String profileOwnerId = listOfUsersPosts.get(selectedRow);
-                    SwingUtilities.invokeLater(new ProfileDisplayFrame(socket, userId, profileOwnerId, "Frame.UserFrame"));
+                    String profileOwnerId = String.valueOf(jTable.getValueAt(selectedRow, 1));
+                    SwingUtilities
+                            .invokeLater(new ProfileDisplayFrame(socket, userId, profileOwnerId, "Frame.UserFrame"));
                     userFrame.dispose();
                 }
             }
@@ -131,11 +136,13 @@ public class UserFrame extends JComponent implements Runnable, UserFrameInterfac
 
     ActionListener buttonActionListener = new ActionListener() {
         /**
-         *  @param e This is the listener for buttons.
-         *           There are three buttons:
-         *           One is the logout button which back to Frame.LoginFrame.
-         *           The second is the addFriend button which leads you to AddFriend Frame.
-         *           The third would be the account and profile button which would lead you to Frame.AccountProfileFrame.
+         * @param e This is the listener for buttons.
+         *          There are three buttons:
+         *          One is the logout button which back to Frame.LoginFrame.
+         *          The second is the addFriend button which leads you to AddFriend
+         *          Frame.
+         *          The third would be the account and profile button which would lead
+         *          you to Frame.AccountProfileFrame.
          */
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -159,7 +166,8 @@ public class UserFrame extends JComponent implements Runnable, UserFrameInterfac
     };
 
     /**
-     * The constructor of Frame.UserFrame which use two parameters : socket and userId
+     * The constructor of Frame.UserFrame which use two parameters : socket and
+     * userId
      *
      * @param socket The socket that connects this local machine with the server
      * @param userId The userId of the login user
@@ -170,9 +178,10 @@ public class UserFrame extends JComponent implements Runnable, UserFrameInterfac
     }
 
     /**
-     *  In run method, the GUIs are initialized.
-     *  BufferedReader and PrintWriter is created with the socket that being transferred from other frame.
-     *  A search bar is implemented by using documentLister and a JTextField
+     * In run method, the GUIs are initialized.
+     * BufferedReader and PrintWriter is created with the socket that being
+     * transferred from other frame.
+     * A search bar is implemented by using documentLister and a JTextField
      */
     @Override
     public void run() {
@@ -184,7 +193,7 @@ public class UserFrame extends JComponent implements Runnable, UserFrameInterfac
                     "Unable to initialize", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        //Initialize GUI
+        // Initialize GUI
         popupMenu = new JPopupMenu();
         viewProfile = new JMenuItem("View profile");
         deleteFriend = new JMenuItem("Delete Friend");
@@ -223,15 +232,16 @@ public class UserFrame extends JComponent implements Runnable, UserFrameInterfac
         panel3.add(createPost);
         userFrame.add(panel3, BorderLayout.SOUTH);
         jScrollPane = new JScrollPane(jTable, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-                  JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         JPanel panel2 = new JPanel(new BorderLayout());
         panel2.add(jScrollPane, BorderLayout.CENTER);
         panel2.setVisible(true);
         userFrame.add(panel2, BorderLayout.CENTER);
-        //This implements the functionality of search bar.
+        // This implements the functionality of search bar.
         jtfFilter.getDocument().addDocumentListener(new DocumentListener() {
             /**
              * Document listener for inserting text
+             * 
              * @param e invoked when the text in the jtfFilter JTextField is inserted.
              */
             @Override
@@ -247,6 +257,7 @@ public class UserFrame extends JComponent implements Runnable, UserFrameInterfac
 
             /**
              * Document listener for removing text
+             * 
              * @param e invoked when the text in the jtfFilter JTextField is removed.
              */
             @Override
@@ -262,7 +273,9 @@ public class UserFrame extends JComponent implements Runnable, UserFrameInterfac
 
             /**
              * Document lister for changing of other attribute than text.
-             * @param e DocumentEvent e which is when user change the text inside the jtfFilter JTextField
+             * 
+             * @param e DocumentEvent e which is when user change the text inside the
+             *          jtfFilter JTextField
              */
             @Override
             public void changedUpdate(DocumentEvent e) {
@@ -275,6 +288,7 @@ public class UserFrame extends JComponent implements Runnable, UserFrameInterfac
         userFrame.addWindowListener(new WindowAdapter() {
             /**
              * Window closing listener to close the socket when the user close the software.
+             * 
              * @param e Invoked when a window is in the process of being closed.
              *          The close operation can be overridden at this point.
              */
@@ -294,7 +308,9 @@ public class UserFrame extends JComponent implements Runnable, UserFrameInterfac
     }
 
     /**
-     *  The method that communicate with the server and get the updated userInfo in the login user's friendList
+     * The method that communicate with the server and get the updated userInfo in
+     * the login user's friendList
+     * 
      * @param loginId The id of the login user
      * @return return the updated model with the content of current friendList
      */
@@ -308,29 +324,30 @@ public class UserFrame extends JComponent implements Runnable, UserFrameInterfac
             int num = Integer.parseInt(bufferedReader.readLine());
             System.out.println(num);
             rowData = new String[num][4];
-            for(int i = 0; i < num; i++) {
+            for (int i = 0; i < num; i++) {
                 String response = bufferedReader.readLine();
                 String[] data = response.split("\\|");
                 // System.out.println(response);
                 Date date = new Date(Long.parseLong(data[2]));
                 rowData[i][0] = data[0];
-                if(data[3].equals(loginId)){
-                  rowData[i][1] = data[3]+" (you)";
-                }else{
-                  rowData[i][1] = data[3];
+                if (data[3].equals(loginId)) {
+                    rowData[i][1] = data[3] + " (you)";
+                } else {
+                    rowData[i][1] = data[3];
                 }
                 rowData[i][2] = data[1];
                 rowData[i][3] = sdf.format(date);
                 listOfUsersPosts.add(data[3]);
             }
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return new DefaultTableModel(rowData, columnName) {
             /**
-             * @param row Row of Data
+             * @param row    Row of Data
              * @param column The column head
-             * @return return a DefaultTableModel with the parameter and override its isCellEditable to return false
+             * @return return a DefaultTableModel with the parameter and override its
+             *         isCellEditable to return false
              */
             @Override
             public boolean isCellEditable(int row, int column) {
