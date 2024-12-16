@@ -1,4 +1,7 @@
-package src.PostDatabase.Interface;
+package src;
+
+import src.Interface.CommentInterface;
+import java.io.Serializable;
 
 /**
  * The CommentInterface defines the essential functionality for managing a comment,
@@ -7,26 +10,43 @@ package src.PostDatabase.Interface;
  * @version Nov 2, 2024
  * @author Tharun Kumar Senthilkumar
  */
-public interface CommentInterface {
+public class Comment implements CommentInterface, Serializable{
+    private static final long serialVersionUID = 1L;
+    private String content;
+    private String user;
+
+    public Comment(String content, String user) {
+        this.content = content;
+        this.user = user;
+    }
 
     /**
      * Gets the content of the comment.
      *
      * @return the content of the comment
      */
-    String getContent();
+    @Override
+    public String getContent() {
+        return content;
+    }
 
     /**
      * Gets the user who made the comment.
      *
      * @return the user who made the comment
      */
-    String getUser();
+    @Override
+    public String getUser() {
+        return user;
+    }
 
     /**
      * Returns a string representation of the comment.
      *
      * @return the string representation of the comment (user + content)
      */
-    String toString();
+    @Override
+    public String toString() {
+        return user + ": " + content;
+    }
 }

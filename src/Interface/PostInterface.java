@@ -1,6 +1,6 @@
-package src.PostDatabase.Interface;
+package src.Interface;
 
-import src.PostDatabase.Comment;
+import src.Comment;
 
 import java.util.List;
 import java.util.UUID;
@@ -82,7 +82,7 @@ public interface PostInterface {
      *
      * @return the date and time of the post
      */
-    String getDataAndTime();
+    long getDataAndTime();
 
     /**
      * Adds a comment to the post.
