@@ -1,150 +1,245 @@
 # CS 18000 Team Project - Social Media Platform
 
-------
+This is a Java-based social networking application that allows users to create accounts, manage profiles, interact with friends, and create posts. The application uses a client-server architecture with socket programming for communication.
 
-# Phase 1
+----
 
-------
+## Getting Started
+To run the social media platform application, follow these steps:
+```gitexclude
+1. Clone the repository to your local machine.
+git clone https://github.com/tharunS123/CS1800-Team-Project.git
+```
+```gitexclude
+2. Open the project in your favorite Java IDE (e.g., IntelliJ IDEA, Eclipse).
+```
+```gitexclude
+3. Run the Server class to start the server application.
+```
+```gitexclude
+4. Run the Cl ient class to start the client application.
+```
 
-### UserDatabase
+---
 
-#### The UserDatabase and User classes together make up a file based user management system. The database stores the information in a .txt file and is able to store attributes (for example: username, password, and friend list)
+## User Management
  
-UserDatabase handles database operations such as 
-- Data retrieval 
-- Manage User Data Storage
-- It uses a ReentrantReadWriteLock for safe, concurrent access.
+### [User](https://github.com/tharunS123/CS1800-Team-Project/blob/main/src/User.java) 
+The User class represents a user in the social media platform application. It implements
+the UserInterface and is serializable, allowing user objects to be easily saved and 
+retrieved from a file. The class includes various attributes and methods to manage user 
+information and interactions.
 
-##### Features and Methods
-- addUser: Adds a new user to the database and checks if they don’t already exist. Returns true on success, false if the user exists.
-- getUser: Retrieves a User object based on the given username.
-- updateUser: Updates an existing user’s details. Returns true if successful, false if the user doesn’t exist.
--  deleteUser: Deletes a user after verifying the password (for security reasons)
--  loadUsers(): Loads all users from the .txt file into a Map<String, User>.
--  saveUsers(Map<String, User> users): Writes the user map back to the .txt file.
+**Attributes**:
+- userId: A unique identifier for the user 
+- password: The user's password. 
+- name: The user's name. 
+- email: The user's email address. 
+- friendList: A list of the user's friends. 
+- requestList: A list of friend requests received by the user. 
+- pendingList: A list of friend requests sent by the user that are pending approval. 
+- userProfile: A Profile object containing additional user information.
 
-### User Class
+----
 
-#### The User class represent attributes such as username, password, uuid, and friends.
+## Profile Management & Friend Management
 
-Attributes:
-- Username: The user's name, which is unique across the database.
-- Password: The user's password to access into the users profile.
-- uuid: An another unique identifier for the user.
-- loggedIn: A flag indicating whether the user is currently logged in.
-- friends: A list of usernames representing the user's friends.
+### [Profile](https://github.com/tharunS123/CS1800-Team-Project/blob/main/src/Profile.java)
+The Profile class represents additional user information in the social media platform 
+application. It includes various attributes and methods to manage user profile details.
 
-*Methods explained in javadoc
+**Attributes**:
+- bio: A brief biography of the user. 
+- profilePicture: The URL or path to the user's profile picture. 
+- location: The user's location. 
+- website: The user's personal or professional website. 
+- birthdate: The user's birthdate. 
+- interests: The user's interests.
 
-#### Database File Structure
-User data is stored in a serialized .txt file specified by UserDatabase. The loadUsers and saveUsers methods ensure that data is read and written correctly, with each entry mapping a username to a User object.
+----
 
-### Several libraries and packages were used to support specific functions
+## Post Management
 
-### Java Libraries: 
-For using I/O operations and serialization. Java Swing (javax.swing.text.PasswordView): For enabling to hide characters while entering passwords in UI applications (in this case terminal) .
+### [Post](https://github.com/tharunS123/CS1800-Team-Project/blob/main/src/Post.java)
+The Post class represents a post in the social media platform application. It includes various attributes and methods to manage post details
 
-### PostDatabase
+**Attributes**:
+- title: The title of the post. 
+- content: The content of the post. 
+- author: The author of the post. 
+- timestamp: The time when the post was created.
 
-#### The PostDatabase and its classes make up the essential of a social media post. The PostDatabase is responsible for the creation, reading, and retrieval of posts created in a .txt file with attributes such as title, content, author and date.
+----
 
-##### PostDatabase handles operations such as:
-- Manage Post creation and storage
-- Text File creation
-- Uses ReentrantReadWriteLock for safe, concurrent access
-- Exception handling
+## Technical Architecture
 
-##### Features and Methods:
-- addPost(Post post): Adds a new post to the post list and appends it to the file. Returns
-true if post is successfully added, false otherwise
-- savePostFile(Post post): Appends a string representation of a post to the file. Uses
-BufferedWriter for efficiency
-- readPostDatabase(String fileName): Reads all the posts from the file into an array list.
-Returns the list of posts as strings.
-- getPost(): Returns all the posts stored in the post list.
-- getPostID(int id): Check if a post with a specified ID exists by reading all posts from the
-file.
+### Components
+- [Client](https://github.com/tharunS123/CS1800-Team-Project/blob/main/src/Server/Client.java): The client application that users interact with to access the social media platform.
+- [Server](https://github.com/tharunS123/CS1800-Team-Project/blob/main/src/Server/Server.java): The server application that manages user accounts, profiles, posts, and interactions.
+- [User](https://github.com/tharunS123/CS1800-Team-Project/blob/main/src/User.java): The user class that represents a user in the social media platform application.
+- [Profile](https://github.com/tharunS123/CS1800-Team-Project/blob/main/src/Profile.java): The profile class that represents additional user information in the social media platform application.
+- [Post](https://github.com/tharunS123/CS1800-Team-Project/blob/main/src/Post.java): The post class that represents a post in the social media platform application.
 
-### Post Class
+**The User class make up a file based user management system. The database stores the information in a .dat file and is able to store attributes (for example: username, password, and friend list)**
 
-#### The Post class represents attributes such as title, content, author, date, ID, comments, upvotes and downvotes.
+### Communication Protocol
+- ServerSocket based communication using the server ObjectInputStream and FileInputStream.
+```java
+ServerSocket serverSocket = new ServerSocket(1112);
+```
+- Socket based communication between client and server.
+```java
+Socket socket = new Socket("localhost", 1112);
+```
 
-##### Attributes:
-- Title: The given name of a post
-- Content: The material of the post
-- Author: The name of the user who created the post
-- ID: A unique identifier for a post
-- Comments: The reactions to a post
-- Upvotes: An interactable agreement with a post
-- Downvotes: An interactable disagreement with a post
+### [Server](https://github.com/tharunS123/CS1800-Team-Project/blob/main/src/Server/Server.java)
+The Server class is the backbone of the multi-client server application. 
+It manages client-server communication, user authentication, and post management. 
+The Server listens for incoming client connections, processes user actions, and ensures 
+the safe storage and retrieval of user and post data. 
 
-*Methods explained in javadoc
+#### Server Features
+- Multithreaded server handling multiple client connections
+- Synchronized methods for thread-safe operations
+- Dynamic user and post management
 
-#### Database File Structure
-Post data is stored in a serialized .txt file specified by PostDatabase. The addPost and
-savePostFile methods ensure that the data is read, written, and stored correctly.
+**Attributes**:
+- users: A HashMap that stores user objects with their unique user IDs as keys.
+- posts: An ArrayList that stores post objects created by users.
+- userFile: The file path for storing user data.
+- postFile: The file path for storing post data.
+- serverSocket: The ServerSocket object for accepting client connections.
 
-#### Java Libraries:
-(please update cause I'm not that knowledgeable)
+**Methods**:
+- ``main(String[] args)``: The main method that initializes the server, user database, and post database, and listens for client connections.
+- ``synchronized boolean login(String username, String password)``: Authenticates a user based on the provided username and password. Returns true if the user is successfully authenticated.
+```java
+@Override
+public synchronized boolean login(String username, String password) {
+  if (!userList.isEmpty()) {
+    if(userList.containsKey(username)){
+      User user = userList.get(username);
+        System.out.println("User password:" + user.getPassword());
+        if(user.getPassword().equals(password)){
+          System.out.println(username + " logged in @ address: " + socket.getInetAddress());
+          return true;
+        }
+      }
+    }
+  return false;
+}
+```
+- ``synchronized boolean createPost(String title, String content, String userId)``: Creates a new post with the provided title, content, and author (user ID). Returns true if the post is successfully created.
+```java
+public synchronized boolean createPost(String title, String content, String userId){
+  System.out.println("Got to createPost");
+  Post post = new Post(title, content, userId);
+  postList.put(postNumbering, post);
+  postNumbering++;
+  for (Post p : postList.values()) {
+    System.out.println(p);
+  }
+  return true;
+}
+```
+- ``synchronized boolean uniqueIdCheck(String userId)``: checks if the given parameter userId is unique in the database. Returns true if the userId is unique.
+- ``synchronized boolean uniquePhoneNoCheck(String phoneNumber)``: checks if the given parameter phoneNumber is unique in the database. Returns true if the phoneNumber is unique.
+- ``void run()``: run method
+  * Start whenever a new socket is accepted
+  * create a printWriter and a bufferedReader
+  * Use a switch to perform different tasks required by the clients
 
-------
+### [Client](https://github.com/tharunS123/CS1800-Team-Project/blob/main/src/Server/Client.java)
+The Client class is the client-side application that interacts with the server to access the social media platform. It allows users to log in, create posts, and view posts created by friends.
 
-## Phase 2
+**Attributes**:
+- socket: The Socket object for connecting to the server.
 
-### Server Class
-The Server class is the backbone of the multi-client server application. It manages client-server
-communication, user authentication, and post management by utilizing the UserDatabase and
-PostDatabase. The Server listens for incoming client connections, processes user actions, and ensures the
-safe storage and retrieval of user and post data.
+**Methods**:
+- ``main(String[] args)``: The main method that initializes the client and connects to the server.
+```java
+public static void main(String[] args) {
+  Socket socket;
+  try {
+    socket = new Socket("localhost", 1112);
+  } catch (IOException e) {
+    JOptionPane.showMessageDialog(null,
+            "Unable to connect to the server", "Error", JOptionPane.ERROR_MESSAGE);
+    return;
+  }
+  // Invoke Frame.LoginFrame in the Event Dispatch Thread
+  SwingUtilities.invokeLater(new LoginFrame(socket));
+}
+```
 
-#### Responsibilities
-- Main Method: Listens for client connections and initializes user and post databases
-- clientHandler(): Creates a new ClientHandler thread for each client connection, ensuring
-  isolation and independent communication.
-- handleLogin(): Handles user signup by creating a new account in the user database.
-- handleSignup(): Handles the creation of new posts by logged-in users.
-- handleCreatePost(): Handles the viewing of posts.
+---
 
-#### Database File Structure:
-- User data is managed by the UserDatabase class, and post data is managed by the PostDatabase
-  class. Both databases are loaded from and saved to .txt files
+## Swing GUI
+Swing is a part of Java's standard library used to create Graphical User Interfaces (GUIs). It provides a set of lightweight, platform-independent components for building desktop applications
 
-### Client Class
-The Client class is responsible for managing the communication between the server and an individual
-client. It handles user authentication, post creation, and client requests through a set of interactive
-commands. Each client gets their own instance of ClientHandler for concurrent handling, allowing
-multiple clients to interact with the server simultaneously.
+Key features of Swing:
+- Customizable: Components can be easily styled and customized. 
+- Event-Driven: User actions like clicks or key presses trigger events that can be handled programmatically. 
+- Platform-Independent: Looks consistent across operating systems. 
+- Flexible Layout Management: Offers multiple layout managers to control component placement.
 
-#### Responsibilities
-- Client Interaction: Handles client inputs, including login, signup, post creation, and viewing
-  posts.
-- Authentication: Verifies user credentials during login and creates new accounts during signup.
-- Post Management: Facilitates post creation by logged-in users and provides a space for future
-  post viewing functionality
-- Session Management: Keeps track of the user's login state and allows them to log out when
-  necessary.
+**We have split which functionality is handled by the client which calls the Swing compound and which is handled by the server. 
+The server handles the user authentication and post creation, while the client handles the user interface and user interactions.**
 
-#### Features and Methods:
-- handleLogin(BufferedReader input, PrintWriter output): Authenticates users based on their
-  username and password by verifying against the UserDatabase
-- handleSignup(BufferedReader input, PrintWriter output): Creates a new user account and
-  adds it to the UserDatabase
-- handleCreatePost(BufferedReader input, PrintWriter output): Allows logged-in users to
-  create posts by providing a title and content. These posts are stored in the PostDatabase
-- handleViewPosts(BufferedReader input, PrintWriter output): A placeholder method for
-  future implementation that will allow users to view posts
-- Session Control: The class maintains a session for the user, tracking whether they are logged in
-  or logged out.
+**Compounds**:
+- [``LoginFrame.java``](https://github.com/tharunS123/CS1800-Team-Project/blob/main/src/Frame/LoginFrame.java): The login frame that allows users to log in to the social media platform.
+- [``RegisterFrame.java``](https://github.com/tharunS123/CS1800-Team-Project/blob/main/src/Frame/RegisterFrame.java): The register frame that allows users to create new accounts.
+- [``UserFrame.java``](https://github.com/tharunS123/CS1800-Team-Project/blob/main/src/Frame/UserFrame.java): The user frame will display the post and the friends list. 
 
-#### Database file structure: 
-- Post data is stored in the PostDatabase class, and user data is managed in the UserDatabase. Both
-  databases are represented by .txt files, with each post and user being serialized into a string
-  format and saved.
+**And anymore compounds like this.**
 
-#### General Flow
-1. Server Initialization: The server listens for incoming connections and initializes databases.
-2. Client Interaction: Each client is assigned a separate ClientHandler thread that communicates
-   with the server and handles specific actions like login, signup, post creation, etc.
-3. User Authentication: Users must authenticate before they can perform certain actions, such as
-   creating posts.
-4. Post Management: Once logged in, users can create posts, which are added to the PostDatabase.
+**ActionListener**: For login buttons, we have implemented an ActionListener interface to handle user actions.
+```java
+ActionListener actionListener = new ActionListener() {
+  /**
+     * @param e Invoked when any of the button in the frame is selected.
+     *          There are two button choices: Login and Register.
+     *          Register button would lead to the Frame.RegisterFrame while login button
+     *          would perform the functionality by sending userId and password to the server.
+    */
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      if (e.getSource() == loginButton) {
+        userId = userIdField.getText();
+        char[] rawPassword = passwordField.getPassword();
+        StringBuilder actualPassword = new StringBuilder();
+        actualPassword.append(rawPassword);
+        try {
+          printWriter.println("Login");
+          printWriter.println(userId);
+          printWriter.println(actualPassword.toString());
+          printWriter.flush();
+          String result = bufferedReader.readLine();
+          if (result.equals("Success")) {
+            JOptionPane.showMessageDialog(null, "Login Successful!", "Login Success", JOptionPane.INFORMATION_MESSAGE);
+            SwingUtilities.invokeLater(new UserFrame(socket, userId));
+            loginFrame.dispose();
+          } else {
+            if (result.equals("Invalid")) {
+              JOptionPane.showMessageDialog(null, "Invalid username/password", "Login Failure", JOptionPane.INFORMATION_MESSAGE);
+              return;
+            }
+          }
+        } catch (IOException ioException) {
+          ioException.printStackTrace();
+        }
+      }
+      if (e.getSource() == registerButton) {
+        SwingUtilities.invokeLater(new RegisterFrame(socket));
+        loginFrame.dispose();
+      }
+    }
+};
+```
+
+---
+
+## License
+This project is open-source. 
+
+
