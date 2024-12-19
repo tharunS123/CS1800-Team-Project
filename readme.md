@@ -8,7 +8,7 @@ This is a Java-based social networking application that allows users to create a
 To run the social media platform application, follow these steps:
 ```gitexclude
 1. Clone the repository to your local machine.
-git clone https://github.com/tharunS123/CS1800-Team-Project.git
+git clone https://github.com/tharunS123/Easy-Chat.git
 ```
 ```gitexclude
 2. Open the project in your favorite Java IDE (e.g., IntelliJ IDEA, Eclipse).
@@ -24,7 +24,7 @@ git clone https://github.com/tharunS123/CS1800-Team-Project.git
 
 ## User Management
  
-### [User](https://github.com/tharunS123/CS1800-Team-Project/blob/main/src/User.java) 
+### [User](https://github.com/tharunS123/Easy-Chat/blob/main/src/User.java) 
 The User class represents a user in the social media platform application. It implements
 the UserInterface and is serializable, allowing user objects to be easily saved and 
 retrieved from a file. The class includes various attributes and methods to manage user 
@@ -44,7 +44,7 @@ information and interactions.
 
 ## Profile Management & Friend Management
 
-### [Profile](https://github.com/tharunS123/CS1800-Team-Project/blob/main/src/Profile.java)
+### [Profile](https://github.com/tharunS123/Easy-Chat/blob/main/src/Profile.java)
 The Profile class represents additional user information in the social media platform 
 application. It includes various attributes and methods to manage user profile details.
 
@@ -60,7 +60,7 @@ application. It includes various attributes and methods to manage user profile d
 
 ## Post Management
 
-### [Post](https://github.com/tharunS123/CS1800-Team-Project/blob/main/src/Post.java)
+### [Post](https://github.com/tharunS123/Easy-Chat/blob/main/src/Post.java)
 The Post class represents a post in the social media platform application. It includes various attributes and methods to manage post details
 
 **Attributes**:
@@ -74,11 +74,11 @@ The Post class represents a post in the social media platform application. It in
 ## Technical Architecture
 
 ### Components
-- [Client](https://github.com/tharunS123/CS1800-Team-Project/blob/main/src/Server/Client.java): The client application that users interact with to access the social media platform.
-- [Server](https://github.com/tharunS123/CS1800-Team-Project/blob/main/src/Server/Server.java): The server application that manages user accounts, profiles, posts, and interactions.
-- [User](https://github.com/tharunS123/CS1800-Team-Project/blob/main/src/User.java): The user class that represents a user in the social media platform application.
-- [Profile](https://github.com/tharunS123/CS1800-Team-Project/blob/main/src/Profile.java): The profile class that represents additional user information in the social media platform application.
-- [Post](https://github.com/tharunS123/CS1800-Team-Project/blob/main/src/Post.java): The post class that represents a post in the social media platform application.
+- [Client](https://github.com/tharunS123/Easy-Chat/blob/main/src/Server/Client.java): The client application that users interact with to access the social media platform.
+- [Server](https://github.com/tharunS123/Easy-Chat/blob/main/src/Server/Server.java): The server application that manages user accounts, profiles, posts, and interactions.
+- [User](https://github.com/tharunS123/Easy-Chat/blob/main/src/User.java): The user class that represents a user in the social media platform application.
+- [Profile](https://github.com/tharunS123/Easy-Chat/blob/main/src/Profile.java): The profile class that represents additional user information in the social media platform application.
+- [Post](https://github.com/tharunS123/Easy-Chat/blob/main/src/Post.java): The post class that represents a post in the social media platform application.
 
 **The User class make up a file based user management system. The database stores the information in a .dat file and is able to store attributes (for example: username, password, and friend list)**
 
@@ -92,7 +92,7 @@ ServerSocket serverSocket = new ServerSocket(1112);
 Socket socket = new Socket("localhost", 1112);
 ```
 
-### [Server](https://github.com/tharunS123/CS1800-Team-Project/blob/main/src/Server/Server.java)
+### [Server](https://github.com/tharunS123/Easy-Chat/blob/main/src/Server/Server.java)
 The Server class is the backbone of the multi-client server application. 
 It manages client-server communication, user authentication, and post management. 
 The Server listens for incoming client connections, processes user actions, and ensures 
@@ -149,7 +149,7 @@ public synchronized boolean createPost(String title, String content, String user
   * create a printWriter and a bufferedReader
   * Use a switch to perform different tasks required by the clients
 
-### [Client](https://github.com/tharunS123/CS1800-Team-Project/blob/main/src/Server/Client.java)
+### [Client](https://github.com/tharunS123/Easy-Chat/blob/main/src/Server/Client.java)
 The Client class is the client-side application that interacts with the server to access the social media platform. It allows users to log in, create posts, and view posts created by friends.
 
 **Attributes**:
@@ -187,9 +187,9 @@ Key features of Swing:
 The server handles the user authentication and post creation, while the client handles the user interface and user interactions.**
 
 **Compounds**:
-- [``LoginFrame.java``](https://github.com/tharunS123/CS1800-Team-Project/blob/main/src/Frame/LoginFrame.java): The login frame that allows users to log in to the social media platform.
-- [``RegisterFrame.java``](https://github.com/tharunS123/CS1800-Team-Project/blob/main/src/Frame/RegisterFrame.java): The register frame that allows users to create new accounts.
-- [``UserFrame.java``](https://github.com/tharunS123/CS1800-Team-Project/blob/main/src/Frame/UserFrame.java): The user frame will display the post and the friends list. 
+- [``LoginFrame.java``](https://github.com/tharunS123/Easy-Chat/blob/main/src/Frame/LoginFrame.java): The login frame that allows users to log in to the social media platform.
+- [``RegisterFrame.java``](https://github.com/tharunS123/Easy-Chat/blob/main/src/Frame/RegisterFrame.java): The register frame that allows users to create new accounts.
+- [``UserFrame.java``](https://github.com/tharunS123/Easy-Chat/blob/main/src/Frame/UserFrame.java): The user frame will display the post and the friends list. 
 
 **And anymore compounds like this.**
 
