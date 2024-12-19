@@ -1,4 +1,4 @@
-# CS 18000 Team Project - Social Media Platform
+# CS 18000 Team Project - Easy Chat
 
 This is a Java-based social networking application that allows users to create accounts, manage profiles, interact with friends, and create posts. The application uses a client-server architecture with socket programming for communication.
 
